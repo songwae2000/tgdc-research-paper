@@ -30,42 +30,33 @@
   \end{@twocolumnfalse}
 ]
 
-Code, data pipeline and pre-registration history:
-github.com/songwae2000/real-vs-generated
+Companies that sell generated data build it from a description of a business. An
+org chart, a list of the work it does, and rules for how that work behaves. If
+the rules can supply the behaviour, you can build a client's data without ever
+seeing their records.
 
-Every figure below is printed by \texttt{python run\_all.py} in that repository.
-Reproducing the paper is one command against four public feeds, with no key, no
-account and no cost. See the closing section.
-
-\section*{Question}
-
-Labs generate enterprise data from procedurally built companies: an org chart, a
-taxonomy of work, and hand-written rules for how that work behaves. If domain
-reasoning can supply the behaviour, a generator can be built for a client
-without their records.
-
-This paper tests whether it can, for one concrete property of operational work:
-how long a task takes.
+I wanted to know whether that holds. So I picked one thing a generator has to get
+right, and I tested it. How long a job takes.
 
 \section*{Hypothesis}
 
-\textbf{H.} Domain priors reasoned from the nature of the work capture a substantial
-share of what real operational records provide for predicting task duration.
+I wrote my prediction down before I ran anything.
 
-Recorded before evaluation: a prior written without sight of the target data
-should reach an AUC of 0.60 to 0.72. Below 0.55 would mean domain reasoning
-supplies essentially nothing.
+Rules reasoned from the nature of the work should capture a good share of what
+real records tell you about duration. In numbers, a prior written without seeing
+the target data should reach an AUC of 0.60 to 0.72. Below 0.55 would mean the
+reasoning adds nothing.
 
-\textbf{Why it matters.} If H holds, a taxonomy is enough to build a generator. If it
-fails, the behaviour has to come from the client's own data.
+If I am right, a list of job types is enough to build a generator. If I am wrong,
+the behaviour has to come from the client's own records.
 
 \section*{Method}
 
-\textbf{Data} (Table 1). Public 311 service request feeds from four cities. These are
-real operational records, written by the organisations that do the work.
-Structurally they are a field service queue: work type, owning department,
-intake channel, open and close timestamps. Two complete calendar weeks from
-each, the weeks of 4 May and 8 June 2026.
+I used public 311 service request feeds from four cities. These are real
+operational records. The people doing the work wrote them. Each feed gives the
+work type, the owning department, how the request came in, and when it opened and
+closed. I took two full calendar weeks from each city, the weeks of 4 May and 8
+June 2026.
 
 \begin{table*}[t]
 \centering
@@ -83,40 +74,36 @@ San Francisco & 17,723 & 17,007 & 15.1h & 37 \\
 \caption{the four feeds, two complete weeks from each.}
 \end{table*}
 
-Tickets still open at the pull date are kept and treated as slow, since all are
-months past any threshold used. Chicago closes most of its feed within a second
-of creation, so those informational records are excluded.
+Tickets still open when I pulled the data are kept and counted as slow. All of
+them are months past any threshold I use. Chicago closes most of its feed within
+a second, so I drop those rows. They are records, not work.
 
-\textbf{Task.} At ticket opening, predict whether it will take longer than the median
-to resolve. Recovered skill is the share of the achievable advantage over chance
-that an arm reaches: \texttt{(arm - 0.5) / (ceiling - 0.5)}.
+The task is simple. At the moment a ticket opens, predict whether it will take
+longer than the median to close. Recovered skill is the share of the achievable
+margin over chance that an arm reaches.
 
-\textbf{The ceiling is the prior's own information.} A prior reasons over the service
-category and the owning department. Fitting the conditional rate directly from
-those same two columns is a strong reference for what those columns support.
-Comparing against it separates a weak rule from weak features. It is one
-unregularised estimator rather than a proved upper bound, and a rule can exceed
-it.
+I need a ceiling to measure against. A prior reads two columns, the service
+category and the owning department. So I fit the conditional rate straight from
+those same two columns. That tells me what the columns support. Comparing against
+it separates a weak rule from weak features. It is one estimator and not a proved
+upper bound, so a rule can beat it.
 
-\textbf{Two resampling units.} A prior is a function of the category, so it takes one
-value for every ticket in a category. Resampling tickets treats 17,007 San
-Francisco rows as independent when the design has 37 independent units.
-Intervals are reported both ways, and the category interval is the one any claim
-about unseen work has to survive [1].
+I report two kinds of interval. A prior is a function of the category. It gives
+the same answer to every ticket in a category. Resampling tickets treats 17,007
+San Francisco rows as independent when I really have 37. So I resample both ways.
+The category interval is the one a claim about unseen work has to survive [1].
 
-\textbf{Blind authorship.} Rules were written from each city's service type and
-department vocabulary alone. The catalogue was pulled with the query restricted
-to names and row counts, so no duration, rate or outcome was available. Rules
-were written, committed with a recorded prediction, and only then evaluated. One
-San Francisco rule file was amended 27 seconds after being committed, to match on
-word boundaries rather than substrings, before that city's data existed on disk.
+I pulled each catalogue with the query limited to category names and row counts.
+No duration, no rate, no outcome. I wrote the rules from that alone, committed
+them with a prediction, and only then ran the evaluation. I amended one San
+Francisco file 27 seconds after committing it, to match on word boundaries
+instead of substrings. That was before the city's data existed on disk.
 
-\textbf{Two authors.} The largest threat to a result like this is that it describes
-one person's reasoning. Austin and San Francisco were each given two authors
-under the same blind condition: the first was the experimenter, the second a
-language model that saw only the taxonomy and was instructed not to look
-anything up. New York is the contrast case, with rules written against its own
-conditional rates, and Chicago is where those rules are carried.
+The biggest risk here is that the result describes one person's reasoning. So
+Austin and San Francisco each got two sets of rules under the same blind
+condition. I wrote one. A language model wrote the other from the same catalogue.
+New York is the contrast, with rules written while I could see the real rates.
+Chicago is where I carried those rules.
 
 \section*{Results}
 
@@ -127,32 +114,31 @@ conditional rates, and Chicago is where those rules are carried.
 \footnotesize
 \begin{tabular}{llrrrrr}
 \toprule
-city & author & AUC & by ticket & by category & ceiling & recovered \\
+city & rules & AUC & by ticket & by category & ceiling & recovered \\
 \midrule
-Austin & human & 0.494 & [0.481, 0.508] & [0.331, 0.649] & 0.883 & $-1\%$ \\
-Austin & independent & 0.611 & [0.598, 0.626] & [0.442, 0.770] & 0.883 & 29\% \\
-San Francisco & human & 0.676 & [0.670, 0.684] & [0.515, 0.815] & 0.886 & 46\% \\
-San Francisco & independent & 0.777 & [0.770, 0.784] & [0.529, 0.859] & 0.886 & \textbf{72\%} \\
+Austin & mine & 0.494 & [0.481, 0.508] & [0.331, 0.649] & 0.883 & $-1\%$ \\
+Austin & the model & 0.611 & [0.598, 0.626] & [0.442, 0.770] & 0.883 & 29\% \\
+San Francisco & mine & 0.676 & [0.670, 0.684] & [0.515, 0.815] & 0.886 & 46\% \\
+San Francisco & the model & 0.777 & [0.770, 0.784] & [0.529, 0.859] & 0.886 & 72\% \\
 \bottomrule
 \end{tabular}
-\caption{what a blind prior recovers, by city and by author. Intervals by ticket are 1,000 resamples; by category, 2,000.}
+\caption{what blind rules recover, by city and by author. Ticket intervals are 1,000 resamples, category intervals 2,000.}
 \end{table*}
 
-\textbf{H cannot be answered yes or no} (Table 2). The strongest blind prior recovers
-72\% of the achievable skill in San Francisco. The weakest recovers nothing in
-Austin. Testing one city would have produced a confident conclusion in either
-direction, and the direction would have been an artefact of the city.
+The answer is not yes or no (Table 2). The best blind rules recover 72\% of the
+achievable skill in San Francisco. The weakest recover nothing in Austin. Had I
+tested one city I would have drawn a confident conclusion either way, and the
+city would have decided which.
 
-The two intervals disagree about what has been shown. By ticket, three of the
-four arms sit above chance. By category, only the two San Francisco arms do:
-Austin's independent prior spans [0.442, 0.770] and is not distinguishable from
-guessing. The headline 72\% spans roughly 7\% to 93\% on the same unit. Every
-positive claim below is meant at that width.
+The two intervals disagree. By ticket, three of the four arms beat chance. By
+category, only the two San Francisco arms do. Austin's model-written set spans
+[0.442, 0.770], and I cannot tell it from guessing. The 72\% spans roughly 7\% to
+93\% on the same unit. Read every claim below at that width.
 
 \subsection*{What the rules add over structure alone}
 
-A rule set that scores well may be reasoning, or may only be partitioning a
-concentrated taxonomy in any sensible way. Two controls separate those.
+A rule set can score well for two reasons. It may be reasoning. Or it may just be
+cutting a lopsided taxonomy in any sensible way. Two controls tell them apart.
 
 \begin{table*}[t]
 \centering
@@ -169,32 +155,29 @@ San Francisco & category frequency alone & 0.672 & [0.441, 0.785] & 45\% \\
 San Francisco & same rules, verdicts shuffled & 0.499 & [0.312, 0.690] & 0\% \\
 \bottomrule
 \end{tabular}
-\caption{the blind prior against two baselines built from structure alone. Intervals by category.}
+\caption{blind rules against two baselines built from structure alone. Category intervals.}
 \end{table*}
 
-Shuffling the verdicts across categories holds the taxonomy, the row counts and
-the exact multiset of scores, and destroys only which category received which
-verdict. It scores 0.501 and 0.499 (Table 3), so the reasoning is doing the work
-and not the shape of the problem. \textbf{A blind prior beats any structured guess over the same taxonomy.} That is the control this design most needed, and it comes out
-in favour of the prior.
+The shuffle keeps everything structural. Same taxonomy, same row counts, same set
+of scores. It only breaks which category got which score. It lands at 0.501 and
+0.499 (Table 3). So the reasoning is doing the work, not the shape of the
+problem.
 
-Category frequency alone is the more uncomfortable baseline. The blind pull
-supplied row counts, and row counts are real operational data. Scored
-rarer-is-slower it reaches 0.672 in San Francisco against the human author's
-0.676, so \textbf{that arm adds almost nothing beyond volume}. The independent author
-clears it by 0.105. Choosing the direction is one bit the catalogue did not
-supply, so the baseline is if anything generous.
+Frequency is the harder baseline. The pull gave me row counts, and row counts are
+real operational data. Scored rarer-is-slower, frequency alone reaches 0.672 in
+San Francisco. My own rules reach 0.676. My rules add almost nothing beyond
+volume. The model's rules clear frequency by 0.105. Picking that direction is one
+bit the catalogue did not give me, so the baseline is if anything generous.
 
 \subsection*{The author effect is not established}
 
-The independent author beats the experimenter by 0.116 in Austin and 0.101 in
-San Francisco, paired on the same resample. The same direction and roughly the
-same magnitude twice is suggestive. By ticket both differences exclude zero,
-[0.104, 0.131] and [0.095, 0.107]. By category neither does, [-0.036, 0.288] and
-[-0.021, 0.174], so two cities do not establish it. An earlier draft reported
-these differences with no interval at all.
+The model beats me by 0.116 in Austin and 0.101 in San Francisco. Same direction,
+similar size, twice. That looks like something. By ticket both differences miss
+zero, [0.104, 0.131] and [0.095, 0.107]. By category neither does, [-0.036,
+0.288] and [-0.021, 0.174]. Two cities are not enough. An earlier draft of mine
+reported these with no interval at all.
 
-\subsection*{Predictions recorded before evaluation}
+\subsection*{What I predicted, before I looked}
 
 \begin{center}
 \footnotesize
@@ -203,92 +186,93 @@ these differences with no interval at all.
 \toprule
 arm & predicted & observed & in band \\
 \midrule
-Austin, human & 0.60 to 0.72 & 0.494 & \textbf{no} \\
-Austin, independent & 0.52 to 0.62 & 0.611 & yes \\
-SF, human & 0.55 to 0.68 & 0.676 & yes \\
-SF, independent & none & 0.777 & - \\
+Austin, mine & 0.60 to 0.72 & 0.494 & no \\
+Austin, the model & 0.52 to 0.62 & 0.611 & yes \\
+SF, mine & 0.55 to 0.68 & 0.676 & yes \\
+SF, the model & none & 0.777 & - \\
 \bottomrule
 \end{tabular}
 \end{center}
 
-The first band was set before any result existed and was wrong. The next two were
-set knowing the Austin outcome and were right, which is a weaker achievement. The
-fourth arm, which produces the headline 72\%, carries no recorded prediction at
-all. Of the predictions made, the only one made in genuine ignorance failed.
+I set the first band before the project had any result. It was wrong. I set the
+next two after seeing Austin, so I already knew roughly what to expect. That is a
+weaker achievement and I count it as one. The fourth arm produces my headline 72\%
+and carries no prediction at all. The only prediction I made in real ignorance is
+the one that failed.
 
-\subsection*{One department's work explains most of the gap}
+\subsection*{One department explains most of the gap}
 
 \begin{table*}[t]
 \centering
 \footnotesize
 \begin{tabular}{llrrrr}
 \toprule
-subset & author & n & prior & ceiling & recovered \\
+subset & rules & n & prior & ceiling & recovered \\
 \midrule
-Austin, all tickets & human & 6,029 & 0.494 & 0.883 & $-1\%$ \\
-Austin, excluding ARR & human & 4,008 & 0.644 & 0.881 & 38\% \\
-Austin, all tickets & independent & 6,029 & 0.611 & 0.883 & 29\% \\
-Austin, excluding ARR & independent & 4,008 & 0.766 & 0.881 & \textbf{70\%} \\
-San Francisco, all tickets & human & 17,007 & 0.676 & 0.886 & 46\% \\
-San Francisco, all tickets & independent & 17,007 & 0.777 & 0.886 & 72\% \\
+Austin, all tickets & mine & 6,029 & 0.494 & 0.883 & $-1\%$ \\
+Austin, excluding ARR & mine & 4,008 & 0.644 & 0.881 & 38\% \\
+Austin, all tickets & the model & 6,029 & 0.611 & 0.883 & 29\% \\
+Austin, excluding ARR & the model & 4,008 & 0.766 & 0.881 & 70\% \\
+San Francisco, all tickets & mine & 17,007 & 0.676 & 0.886 & 46\% \\
+San Francisco, all tickets & the model & 17,007 & 0.777 & 0.886 & 72\% \\
 \bottomrule
 \end{tabular}
-\caption{excluding everything one Austin department owns, for both authors.}
+\caption{removing everything one Austin department owns, for both sets of rules.}
 \end{table*}
 
-Austin Resource Recovery (Table 4) is 34\% of Austin's volume and 70\% of its work runs slow.
-Both priors call it fast, mean prediction 0.37. Remove it and the independent
-author reaches 70\% against San Francisco's 72\%, the experimenter 38\% against 46\%.
-The city gap narrows sharply for both authors.
+Austin Resource Recovery (Table 4) is 34\% of the city's volume. 70\% of its work
+runs slow. Both sets of rules call it fast, mean prediction 0.37. Take it out and
+the model's rules reach 70\% against San Francisco's 72\%. Mine reach 38\% against
+46\%. The gap closes for both of us.
 
-The reason is worth stating plainly. A missed collection stays open until the
-next scheduled route, which is a week away. The work is trivially routine. The
-ticket is not, and nothing in the phrase \texttt{ARR - Compost} reveals it.
+The reason is plain. A missed collection sits open until the next scheduled
+route, a week away. The work is routine. The ticket is not. Nothing in the phrase
+ARR - Compost tells you that.
 
-Two caveats. ARR is a department prefix, not a category called waste, so the
-exclusion also removes fast work it owns: \texttt{ARR - Dead Animal Collection} runs
-0.0\% slow and \texttt{ARR - General} 8.9\%, both predicted fast and both correct. And
-San Francisco has the same failure at a quarter of the scale, which this subset
-does not remove: \texttt{Graffiti Public} is 8.2\% of volume, 85.1\% slow, priced 0.37.
+Two caveats. ARR is a department prefix, not a category called waste. So removing
+it also removes fast work that department owns. ARR - Dead Animal Collection runs
+0.0\% slow and ARR - General 8.9\%. Both were predicted fast and both were right.
+San Francisco has the same problem at a quarter of the size. Graffiti Public is
+8.2\% of volume, 85.1\% slow, and priced at 0.37. This subset does not remove it.
 
 \subsection*{The finding}
 
-A blind domain prior recovers roughly 70\% of the achievable skill on work whose
-duration follows from the nature of the job, and nothing on work whose duration
-is set by an administrative cycle the job description does not reveal. What
-determines its value is how much of a client's volume sits in the second group,
-and that is not knowable from the taxonomy. The 70\% is the independent author's
-in both cities; the experimenter reaches 38\% and 46\% on the same comparison. The
-pattern holds for both, the level does not.
+A blind prior recovers about 70\% of the achievable skill on work whose length
+follows from the job. It recovers nothing on work whose clock is an
+administrative cycle. What decides its value is how much of a client's volume
+sits in the second group, and you cannot see that in their taxonomy.
 
-\subsection*{What having the rates is worth}
+The 70\% is the model's, in both cities. I reach 38\% and 46\% on the same
+comparison. The pattern holds for both of us. The level does not.
+
+\subsection*{What the real rates are worth}
 
 \begin{table*}[t]
 \centering
 \footnotesize
 \begin{tabular}{llrrrr}
 \toprule
-prior & tested on & threshold & AUC & ceiling & recovered \\
+rules & tested on & threshold & AUC & ceiling & recovered \\
 \midrule
 New York & New York & 5.4h & 0.840 & 0.918 & 81\% \\
 NY rules carried & Chicago & 118.0h & 0.496 & 0.717 & $-2\%$ \\
 NY rules carried & Chicago & 5.4h & 0.581 & 0.717 & 37\% \\
 \bottomrule
 \end{tabular}
-\caption{the same procedure with the site's rates in hand, and the same rules carried across.}
+\caption{the same procedure with the site's rates in hand, and those rules carried to another city.}
 \end{table*}
 
-Rules written with a city's conditional rates in hand reach 81\% there, above the
-72\% a blind author reached in San Francisco but not by much.
+Rules written with a city's rates in hand reach 81\% there. That is above the 72\%
+a blind author got in San Francisco, but not by much.
 
-Carried to Chicago at Chicago's own median they score 0.496, which an earlier
-draft called actively misleading. That reading does not survive the thresholds
-(Table 5): the medians differ 22-fold, 5.4h against 118.0h, so the carried row
-asks a question the rules were never written for. Held at New York's own
-threshold they reach 0.581, or 37\%. What remains is mechanical, since the rules
-fire on only 17.1\% of Chicago rows, being New York acronyms.
+Carried to Chicago at Chicago's own median they score 0.496. I called that
+actively misleading in an earlier draft. It does not hold up (Table 5). The two
+medians are 5.4h and 118.0h, 22 times apart. The carried row asks the rules a
+question nobody wrote them for. Held at New York's own threshold the same rules
+reach 0.581, or 37\%. What is left is mechanical. The rules fire on 17.1\% of
+Chicago rows, because they are New York acronyms.
 
-\subsection*{Distribution fidelity does not detect any of this}
+\subsection*{Distribution fidelity misses all of this}
 
 \begin{table*}[t]
 \centering
@@ -303,123 +287,96 @@ city median & marginals + pairwise & 0.917 & 100\% & 0.0\% \\
 city median & empirical joint & 0.918 & 100\% & 0.0\% \\
 within category & real records & 0.524 & 100\% & 0.0\% \\
 within category & marginal only & 0.502 & 10\% & 65.7\% \\
-within category & marginals + pairwise & 0.506 & \textbf{25\%} & 0.0\% \\
+within category & marginals + pairwise & 0.506 & 25\% & 0.0\% \\
 within category & empirical joint & 0.524 & 100\% & 0.0\% \\
 \bottomrule
 \end{tabular}
-\caption{training on generated New York records, testing on real ones. Ten seeds.}
+\caption{training on generated New York records and testing on real ones. Ten seeds.}
 \end{table*}
 
-Each generator is fitted on real New York records, sampled from, and used to
-train a model tested on real ones: train on synthetic, test on real [2]
-(Table 6).
-Matching marginals and pairwise dependence is the bar PrivBayes and the NIST
-differential privacy winner MST fit directly [3, 4], and roughly what SDV's
-quality report scores after the fact [5, 6]. That report is a diagnostic
-computed on any generator's output, not an objective any of them minimises, and
-its own documentation notes that similarity and usefulness may not correlate
-[6]. This ladder tests the project's \textbf{first} recorded hypothesis, fixed in
-\texttt{HYPOTHESIS.md} before any experiment ran: that generated records at that
-fidelity would still contain combinations the real process could never produce,
-and that downstream accuracy would fall as their rate rose. It failed, for a
-structural reason rather than an empirical one, and the work moved to the
-narrower question the rest of this paper answers. That move is why the paper's
-stated H and the pre-registration are not the same sentence.
+I fit each generator on real New York records, sample from it, train a model on
+the sample, and test on real records. Train on synthetic, test on real [2]
+(Table 6). Matching marginals and pairwise dependence is the bar PrivBayes and
+the NIST winner MST fit directly [3, 4]. It is roughly what SDV's quality report
+scores afterwards [5, 6]. That report is a diagnostic run on a generator's
+output, and similarity and usefulness may not correlate [6].
 
-The pairwise generator draws department conditional on category, so it cannot
-emit a pair it never saw: 0.0\% impossible is an identity, not a measurement. The
-learner is additive in one-hot columns and carries no interaction terms, so a
-wrong combination could not have harmed it either. That outcome was fixed by the
-design before any data was touched.
+This ladder tests my first recorded hypothesis, fixed in \texttt{HYPOTHESIS.md} before I
+ran anything. I expected generated records at that fidelity to hold combinations
+the real process could never produce. I expected accuracy to fall as those rose.
+It failed. The reason is structural rather than empirical, and the work moved to
+the narrower question this paper answers. That is why my stated hypothesis and my
+pre-registration are not the same sentence.
 
-The city-median task cannot separate the orders for a further reason: its label
-is nearly a function of one column, which a pairwise generator preserves for
-free. Labelling each ticket against its own category's median removes that
-column, and the orders then separate, pairwise keeping 25\% where the joint keeps
-100\%. The ceiling there is 0.524, so the task holds little signal and the ratio
-sits on a small base. It is the only measurement here that distinguishes
-low-order fidelity from the full joint, and a distribution-level check would
-score both generators as near-perfect.
+The pairwise generator draws department conditional on category. It cannot emit a
+pair it never saw. So 0.0\% impossible is an identity, not a measurement. The
+learner is additive over one-hot columns and has no interaction terms. A wrong
+combination could not have hurt it either. The design settled that outcome before
+I touched any data.
+
+The city-median task cannot separate the two orders for another reason. Its label
+is nearly a function of one column, and a pairwise generator gets that for free.
+Labelling each ticket against its own category's median takes that column away.
+Then they separate. Pairwise keeps 25\% where the joint keeps 100\%. The ceiling
+there is 0.524, so the task holds little signal and the ratio sits on a small
+base. It is the only measurement here that tells low-order fidelity from the full
+joint. A distribution-level check scores both generators as near-perfect.
 
 \section*{Limits}
 
-Four cities, one domain, one task family. Municipal services may be unusually
-institution-bound, and 311 feeds have three usable columns, no cross-document
-structure and no pricing, so they are a thin proxy for the multi-entity
-enterprise data the question is really about.
+Four cities, one domain, one task. Municipal work may be unusually tied to
+institutions. A 311 feed has three usable columns, no documents that have to
+agree with each other, and no prices. It is a thin stand-in for the enterprise
+data the question is really about.
 
 Two blind cities, not four. New York is a contamination control and Chicago its
-transfer target, so neither replicates anything. The unit that replicates is the
-author effect, and its category intervals cross zero.
+transfer target. Neither replicates anything. What replicates is the author
+effect, and its category intervals cross zero.
 
-The independent author is a language model, and this is the largest uncontrolled
-channel in the design. These feeds are among the most widely mirrored public
-datasets there are, so blind means the session showed it no durations, not that
-its weights hold none. Models are known to have memorised popular tabular
-datasets verbatim and to score better on ones they have seen [12], which is the
-failure this arm is exposed to, and it produces every headline number. No prompt
-or model version was recorded, so it cannot be rerun.
+The second author is a language model, and this is the biggest hole in my design.
+These feeds are among the most widely mirrored public datasets there are. Blind
+means the session showed it no durations. It does not mean the weights hold none.
+Models have memorised popular tabular datasets and score better on ones they have
+seen [12]. That is the exact failure this arm is open to, and it produces every
+headline number. I did not record the prompt or the model version, so I cannot
+rerun it.
 
-The San Francisco human prior was written knowing what Austin had shown. Its
-rules are blind to that city's rates but its author is not blind to the lesson.
+I wrote the San Francisco rules knowing what Austin had shown. They are blind to
+San Francisco's rates. I am not blind to the lesson.
 
-The ARR result is a subset chosen after seeing which family the prior got wrong,
-in one city: an explanation consistent with the numbers rather than a tested
-mechanism. New York carries known artefacts, including a department that closes
-most tickets at exactly midnight, so its durations are partly administrative.
+The ARR result is a subset I chose after seeing which family my rules got wrong,
+in one city. It fits the numbers. Nothing has tested it. New York also carries
+known artefacts. One department closes most of its tickets at exactly midnight,
+so its durations are partly administrative.
 
-That distributional fidelity and downstream utility can diverge is established.
-The two rank synthesisers differently [7, 8], high fidelity coexists with poor
-classification performance [9], and models trained naively on synthetic data do
-not generalise back to real data [10]. Whether the standard metrics measure the
-right thing is itself contested [11]. The ladder is here not to re-establish
-that, but because it shows a distribution-level check cannot see the effect this
-paper measures.
-
-\section*{Reproducing this}
-
-\begin{quote}\small\begin{verbatim}
-python run_all.py
-\end{verbatim}\end{quote}
-Clone the repository linked at the top of this paper and run that. Four public
-311 feeds, no key, no account, no cost, numpy and scikit-learn the only
-dependencies. The first run downloads about 60MB. It prints every table above,
-in order.
-
-Two runs on the same data are byte-identical, since every random draw is seeded.
-\texttt{scripts/check\_paper.py} walks every table cell in the markdown source this
-document is generated from and fails if a number appears that the run did not
-print. It exists because two figures once reached a draft without being computed.
-The feeds are live and backfill in place, so it matches within a stated tolerance
-and reports how much drift it absorbed. \texttt{data/MANIFEST.json} records the row
-count and hash of each file these figures came from, and the run reports any
-disagreement before printing.
-
-The blind priors are one file per author per city in \texttt{src/}, each carrying its
-reasoning and its recorded prediction.
+That fidelity and utility can come apart is already known. The two rank
+generators differently [7, 8]. High fidelity sits alongside poor classification
+performance [9]. Models trained on synthetic data without care do not carry back
+to real data [10]. Whether the standard metrics measure the right thing is itself
+argued over [11]. I include the ladder because it shows a distribution-level
+check cannot see the effect I measured.
 
 \section*{What it would take to answer the general question}
 
-Make the prior generate. The arms here compare rule sets against a fitted
-conditional on real data, which measures how much of a conditional a domain
-expert can guess. The question asked is what generated data costs. Sampling rows
-from the taxonomy and volume counts, labelling them with the prior, training on
-those and testing on real records would turn a share of achievable margin into
-the quantity a buyer needs: how much of the training value of real records a
-generator built without them delivers.
+Make the rules generate. My arms compare rule sets against a conditional fitted
+on real data. That measures how much of a conditional a person can guess. The
+question asks what generated data costs. To answer it I would sample rows from
+the taxonomy and the volume counts, label them with the prior, train on those,
+and test on real records. That turns a share of a margin into the number a buyer
+needs. How much of the training value of real records does a generator built
+without them deliver.
 
-Predict the failure families before looking. The ARR explanation implies that any
-category whose clock is an administrative cycle rather than the work itself will
-break a blind prior. Name those categories in a fifth city from the taxonomy,
-record the list, then measure.
+Predict the failures first. My ARR explanation says any category whose clock is
+an administrative cycle will break a blind prior. That is checkable. Name those
+categories in a fifth city from the taxonomy, write the list down, then measure.
 
-More authors, including practitioners, and a language model whose prompt and
-version are recorded, would separate the procedure from the person.
+More authors would help, including people who do the work. So would a language
+model whose prompt and version I recorded.
 
-The procedural point stands regardless. A prior can only be evaluated as a prior
-once per dataset, before anyone has seen the outcomes, and the recorded
-prediction has to come first. Of the predictions here, the only one made in
-genuine ignorance was the one that turned out wrong.
+One thing holds either way. You can only evaluate a prior as a prior once per
+dataset, before anyone has seen the outcomes, and the prediction has to come
+first. Of the predictions I made here, the only one made in real ignorance is the
+one that turned out wrong.
 
 \section*{References}
 

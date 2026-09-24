@@ -31,7 +31,7 @@
 ]
 
 Code, data pipeline and pre-registration history:
-\href{https://github.com/songwae2000/real-vs-generated}{github.com/songwae2000/real-vs-generated}
+github.com/songwae2000/real-vs-generated
 
 Every figure below is printed by \texttt{python run\_all.py} in that repository.
 Reproducing the paper is one command against four public feeds, with no key, no
@@ -39,8 +39,8 @@ account and no cost. See the closing section.
 
 \section*{Question}
 
-Labs generate enterprise data from procedurally built companies: an org chart,
-a taxonomy of work, and hand-written rules for how that work behaves. If domain
+Labs generate enterprise data from procedurally built companies: an org chart, a
+taxonomy of work, and hand-written rules for how that work behaves. If domain
 reasoning can supply the behaviour, a generator can be built for a client
 without their records.
 
@@ -61,9 +61,11 @@ fails, the behaviour has to come from the client's own data.
 
 \section*{Method}
 
-\textbf{Data} (Table 1). Public 311 service request feeds from four cities. These are real
-operational records, written by the organisations that do the work. Two
-complete calendar weeks from each, the weeks of 4 May and 8 June 2026.
+\textbf{Data} (Table 1). Public 311 service request feeds from four cities. These are
+real operational records, written by the organisations that do the work.
+Structurally they are a field service queue: work type, owning department,
+intake channel, open and close timestamps. Two complete calendar weeks from
+each, the weeks of 4 May and 8 June 2026.
 
 \begin{table*}[t]
 \centering
@@ -86,24 +88,35 @@ months past any threshold used. Chicago closes most of its feed within a second
 of creation, so those informational records are excluded.
 
 \textbf{Task.} At ticket opening, predict whether it will take longer than the median
-to resolve. Logistic regression on one-hot categoricals, so the learner is held
-constant. Recovered skill is the share of the achievable advantage over chance
+to resolve. Recovered skill is the share of the achievable advantage over chance
 that an arm reaches: \texttt{(arm - 0.5) / (ceiling - 0.5)}.
 
 \textbf{The ceiling is the prior's own information.} A prior reasons over the service
 category and the owning department. Fitting the conditional rate directly from
-those same two columns gives the best any rule of that shape could do. Comparing
-against it separates a weak rule from weak features.
+those same two columns is a strong reference for what those columns support.
+Comparing against it separates a weak rule from weak features. It is one
+unregularised estimator rather than a proved upper bound, and a rule can exceed
+it.
+
+\textbf{Two resampling units.} A prior is a function of the category, so it takes one
+value for every ticket in a category. Resampling tickets treats 17,007 San
+Francisco rows as independent when the design has 37 independent units.
+Intervals are reported both ways, and the category interval is the one any claim
+about unseen work has to survive [7].
 
 \textbf{Blind authorship.} Rules were written from each city's service type and
-department vocabulary alone. The taxonomy was pulled with the query restricted
+department vocabulary alone. The catalogue was pulled with the query restricted
 to names and row counts, so no duration, rate or outcome was available. Rules
-were written, committed with a recorded prediction, and only then evaluated.
+were written, committed with a recorded prediction, and only then evaluated. One
+San Francisco rule file was amended 27 seconds after being committed, to match on
+word boundaries rather than substrings, before that city's data existed on disk.
 
 \textbf{Two authors.} The largest threat to a result like this is that it describes
-one person's reasoning. Each city was given two independent authors under the
-same blind condition: the first was the experimenter, the second a language
-model that saw only the taxonomy and was instructed not to look anything up.
+one person's reasoning. Austin and San Francisco were each given two authors
+under the same blind condition: the first was the experimenter, the second a
+language model that saw only the taxonomy and was instructed not to look
+anything up. New York is the contrast case, with rules written against its own
+conditional rates, and Chicago is where those rules are carried.
 
 \section*{Results}
 
@@ -112,213 +125,333 @@ model that saw only the taxonomy and was instructed not to look anything up.
 \begin{table*}[t]
 \centering
 \footnotesize
-\begin{tabular}{llrrrl}
+\begin{tabular}{llrrrrr}
 \toprule
-city & author & AUC [95\% CI] & ceiling & recovered & vs chance \\
+city & author & AUC & by ticket & by category & ceiling & recovered \\
 \midrule
-Austin & human & 0.494 [0.481, 0.508] & 0.883 & $-1\%$ & indistinguishable \\
-Austin & independent & 0.611 [0.598, 0.626] & 0.883 & 29\% & above \\
-San Francisco & human & 0.676 [0.670, 0.684] & 0.886 & 46\% & above \\
-San Francisco & independent & 0.777 [0.770, 0.784] & 0.886 & \textbf{72\%} & above \\
+Austin & human & 0.494 & [0.481, 0.508] & [0.331, 0.649] & 0.883 & $-1\%$ \\
+Austin & independent & 0.611 & [0.598, 0.626] & [0.442, 0.770] & 0.883 & 29\% \\
+San Francisco & human & 0.676 & [0.670, 0.684] & [0.515, 0.815] & 0.886 & 46\% \\
+San Francisco & independent & 0.777 & [0.770, 0.784] & [0.529, 0.859] & 0.886 & \textbf{72\%} \\
 \bottomrule
 \end{tabular}
-\caption{what a blind prior recovers, by city and by author.}
+\caption{what a blind prior recovers, by city and by author. Intervals by ticket are 1,000 resamples; by category, 2,000.}
 \end{table*}
 
-Intervals are 1,000-resample bootstraps. The null baseline, always predicting
-the majority class, scores 0.500 by construction.
+\textbf{H cannot be answered yes or no} (Table 2). The strongest blind prior recovers
+72\% of the achievable skill in San Francisco. The weakest recovers nothing in
+Austin. Testing one city would have produced a confident conclusion in either
+direction, and the direction would have been an artefact of the city.
 
-\textbf{H cannot be answered yes or no} (Table 2). A blind prior recovers 72\% of the achievable
-skill in San Francisco and nothing at all in Austin. Testing one city would have
-produced a confident conclusion in either direction, and the direction would
-have been an artefact of the city.
+The two intervals disagree about what has been shown. By ticket, three of the
+four arms sit above chance. By category, only the two San Francisco arms do:
+Austin's independent prior spans [0.442, 0.770] and is not distinguishable from
+guessing. The headline 72\% spans roughly 7\% to 93\% on the same unit. Every
+positive claim below is meant at that width.
 
-Two effects sit inside that spread, and they differ in size. \textbf{Author} is
-consistent and modest: the independent author beats the experimenter by 0.117 in
-Austin and 0.101 in San Francisco, the same direction and roughly the same
-magnitude twice. \textbf{City} is much larger: the same author moves from 29\% to 72\%.
+\subsection*{What the rules add over structure alone}
 
-\subsection*{Three predictions, recorded before evaluation}
-
-\begin{center}
-\footnotesize
-\setlength{\tabcolsep}{4pt}
-\begin{tabular}{lrrl}
-\toprule
-arm & predicted & observed & inside band \\
-\midrule
-Austin, human & 0.60 to 0.72 & 0.494 & \textbf{no} \\
-Austin, independent & 0.52 to 0.62 & 0.611 & yes \\
-San Francisco, human & 0.55 to 0.68 & 0.676 & yes \\
-\bottomrule
-\end{tabular}
-\end{center}
-
-The first band was set before any result existed and was wrong. The later two
-were set knowing the Austin outcome and were right, which is a weaker
-achievement and is reported as such.
-
-\subsection*{One category family explains the gap between the cities}
-
-\begin{table*}[t]
-\centering
-\footnotesize
-\begin{tabular}{lrrrr}
-\toprule
-subset & n & prior & ceiling & recovered \\
-\midrule
-Austin, all tickets & 6,029 & 0.611 & 0.883 & 29\% \\
-Austin, excluding waste collection & 4,008 & 0.766 & 0.881 & \textbf{70\%} \\
-San Francisco, all tickets & 17,007 & 0.777 & 0.886 & 72\% \\
-\bottomrule
-\end{tabular}
-\caption{removing one category family closes the gap between the cities.}
-\end{table*}
-
-Remove one family of work from Austin (Table 3) and its blind prior recovers 70\%, which is
-San Francisco's 72\%. The cities were never different. One category family was.
-
-Waste collection is 34\% of Austin's volume and 70\% of it runs slow. The prior
-calls it fast, mean prediction 0.37, and the reason is worth stating plainly. A
-missed-collection ticket stays open until the next scheduled route, which is a
-week away. The work is trivially routine. The ticket is not. Nothing in the
-phrase \texttt{ARR - Compost} reveals that.
-
-San Francisco has no equivalent. Its two largest categories, street cleaning and
-parking enforcement, are 57\% of volume, and both behave the way the work
-suggests.
-
-\begin{center}
-\footnotesize
-\setlength{\tabcolsep}{4pt}
-\begin{tabular}{lrrr}
-\toprule
-city & categories & top 5 share & volume misread \\
-\midrule
-Austin & 117 & 40\% & 35\% \\
-San Francisco & 37 & 78\% & 17\% \\
-\bottomrule
-\end{tabular}
-\end{center}
-
-\subsection*{The finding}
-
-A blind domain prior recovers roughly 70\% of the achievable skill on work whose
-duration follows from the nature of the job, in both cities and for both
-authors. It recovers nothing on work whose duration is set by an administrative
-cycle the job description does not reveal. What determines its value is how much
-of a client's volume sits in the second group, and that is not knowable from the
-taxonomy.
-
-\subsection*{What having the rates is worth}
+A rule set that scores well may be reasoning, or may only be partitioning a
+concentrated taxonomy in any sensible way. Two controls separate those.
 
 \begin{table*}[t]
 \centering
 \footnotesize
 \begin{tabular}{llrrr}
 \toprule
-prior & tested on & AUC [95\% CI] & ceiling & recovered \\
+city & arm & AUC & [95\% CI] & recovered \\
 \midrule
-New York & New York & 0.840 [0.837, 0.843] & 0.918 & 81\% \\
-New York, carried across & Chicago & 0.496 [0.492, 0.499] & 0.717 & $-2\%$ \\
+Austin & blind rules & 0.611 &  & 29\% \\
+Austin & category frequency alone & 0.516 & [0.351, 0.726] & 4\% \\
+Austin & same rules, verdicts shuffled & 0.501 & [0.322, 0.674] & 0\% \\
+San Francisco & blind rules & 0.777 &  & 72\% \\
+San Francisco & category frequency alone & 0.672 & [0.441, 0.785] & 45\% \\
+San Francisco & same rules, verdicts shuffled & 0.499 & [0.312, 0.690] & 0\% \\
 \bottomrule
 \end{tabular}
-\caption{the same procedure with the site's rates in hand.}
+\caption{the blind prior against two baselines built from structure alone. Intervals by category.}
 \end{table*}
 
-Rules written with a city's conditional rates in hand (Table 4) reach 81\% there, above the
-72\% a blind author reached in San Francisco but not by much. The same rules
-carried to another city fall entirely below chance. Their interval excludes 0.5
-from beneath, so they are not merely uninformative but actively misleading. The
-department rules match 0.0\% of Chicago rows, being New York acronyms.
+Shuffling the verdicts across categories holds the taxonomy, the row counts and
+the exact multiset of scores, and destroys only which category received which
+verdict. It scores 0.501 and 0.499 (Table 3), so the reasoning is doing the work
+and not the shape of the problem. \textbf{A blind prior beats any structured guess over the same taxonomy.} That is the control this design most needed, and it comes out
+in favour of the prior.
 
-\subsection*{Distribution fidelity does not detect any of this}
+Category frequency alone is the more uncomfortable baseline. The blind pull
+supplied row counts, and row counts are real operational data. Scored
+rarer-is-slower it reaches 0.672 in San Francisco against the human author's
+0.676, so \textbf{that arm adds almost nothing beyond volume}. The independent author
+clears it by 0.105. Choosing the direction is one bit the catalogue did not
+supply, so the baseline is if anything generous.
+
+\subsection*{The author effect is not established}
 
 \begin{center}
 \footnotesize
 \setlength{\tabcolsep}{4pt}
 \begin{tabular}{lrrr}
 \toprule
-generator & AUC & recovered & impossible \\
+city & difference & by ticket & by category \\
 \midrule
-real records (ceiling) & 0.918 & 100\% & 0.0\% \\
-marginal only & 0.466 & $-8\%$ & 70.5\% \\
-marginals + pairwise & 0.917 & \textbf{100\%} & \textbf{0.0\%} \\
-empirical joint & 0.917 & 100\% & 0.0\% \\
+Austin & 0.116 & [0.104, 0.131] & [-0.036, 0.288] \\
+San Francisco & 0.101 & [0.095, 0.107] & [-0.021, 0.174] \\
 \bottomrule
 \end{tabular}
 \end{center}
 
-Matching marginals and pairwise dependence, the bar SDV's Quality Score and the
-NIST differential-privacy winners optimise, recovers everything on the New York
-task and invents no impossible records. A second recorded prediction, that
-impossible records would explain downstream loss, therefore failed at the
-fidelity order that matters.
+The same direction and roughly the same magnitude twice is suggestive. Both
+category intervals cross zero, so with two cities it is not established. An
+earlier draft of this paper reported the two differences with no interval at all.
+
+\subsection*{Predictions recorded before evaluation}
+
+\begin{center}
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{llrl}
+\toprule
+arm & predicted & observed & in band \\
+\midrule
+Austin, human & 0.60 to 0.72 & 0.494 & \textbf{no} \\
+Austin, independent & 0.52 to 0.62 & 0.611 & yes \\
+SF, human & 0.55 to 0.68 & 0.676 & yes \\
+SF, independent & none & 0.777 & - \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+The first band was set before any result existed and was wrong. The next two were
+set knowing the Austin outcome and were right, which is a weaker achievement. The
+fourth arm, which produces the headline 72\%, carries no recorded prediction at
+all. Of the predictions made, the only one made in genuine ignorance failed.
+
+\subsection*{One department's work explains most of the gap}
+
+\begin{table*}[t]
+\centering
+\footnotesize
+\begin{tabular}{llrrrr}
+\toprule
+subset & author & n & prior & ceiling & recovered \\
+\midrule
+Austin, all tickets & human & 6,029 & 0.494 & 0.883 & $-1\%$ \\
+Austin, excluding ARR & human & 4,008 & 0.644 & 0.881 & 38\% \\
+Austin, all tickets & independent & 6,029 & 0.611 & 0.883 & 29\% \\
+Austin, excluding ARR & independent & 4,008 & 0.766 & 0.881 & \textbf{70\%} \\
+San Francisco, all tickets & human & 17,007 & 0.676 & 0.886 & 46\% \\
+San Francisco, all tickets & independent & 17,007 & 0.777 & 0.886 & 72\% \\
+\bottomrule
+\end{tabular}
+\caption{excluding everything one Austin department owns, for both authors.}
+\end{table*}
+
+Austin Resource Recovery is 34\% of Austin's volume and 70\% of its work runs slow.
+Both priors call it fast, mean prediction 0.37. Remove it and the independent
+author reaches 70\% against San Francisco's 72\%, the experimenter 38\% against 46\%.
+The city gap narrows sharply for both authors.
+
+The reason is worth stating plainly. A missed collection stays open until the
+next scheduled route, which is a week away. The work is trivially routine. The
+ticket is not, and nothing in the phrase \texttt{ARR - Compost} reveals it.
+
+Two caveats. ARR is a department prefix, not a category called waste, so
+excluding it also removes fast work the department owns: `ARR - Dead Animal
+Collection\texttt{ closes 0.0\% slow and }ARR - General` 8.9\%, both predicted fast and
+both correct. And San Francisco has the same failure at a quarter of the scale,
+which the subset analysis does not remove: \texttt{Graffiti Public} is 8.2\% of volume
+and 85.1\% slow, priced at 0.37.
+
+\subsection*{The finding}
+
+A blind domain prior recovers roughly 70\% of the achievable skill on work whose
+duration follows from the nature of the job. It recovers nothing on work whose
+duration is set by an administrative cycle the job description does not reveal.
+What determines its value is how much of a client's volume sits in the second
+group, and that is not knowable from the taxonomy.
+
+The 70\% figure is the independent author's, in both cities, once the
+administratively clocked family is removed. The experimenter reaches 38\% and 46\%
+on the same comparison. The pattern holds for both; the level does not.
+
+\subsection*{What having the rates is worth}
+
+\begin{table*}[t]
+\centering
+\footnotesize
+\begin{tabular}{llrrrr}
+\toprule
+prior & tested on & threshold & AUC & ceiling & recovered \\
+\midrule
+New York & New York & 5.4h & 0.840 & 0.918 & 81\% \\
+NY rules carried & Chicago & 118.0h & 0.496 & 0.717 & $-2\%$ \\
+NY rules carried & Chicago & 5.4h & 0.581 & 0.717 & 37\% \\
+\bottomrule
+\end{tabular}
+\caption{the same procedure with the site's rates in hand, and the same rules carried across.}
+\end{table*}
+
+Rules written with a city's conditional rates in hand reach 81\% there, above the
+72\% a blind author reached in San Francisco but not by much.
+
+Carried to Chicago at Chicago's own median they score 0.496, which an earlier
+draft of this paper called actively misleading. That reading does not survive the
+thresholds (Table 6). The two medians differ 22-fold, 5.4h against 118.0h, so the
+carried row asks the rules a question they were never written for. Held at New
+York's own threshold the same rules reach 0.581, or 37\%. Most of the apparent
+transfer failure was the change of question. What remains is mechanical: the
+rules fire on only 17.1\% of Chicago rows, being New York acronyms, so this
+measures overlap between two taxonomies more than portability of knowledge.
+
+\subsection*{Distribution fidelity does not detect any of this}
+
+\begin{table*}[t]
+\centering
+\footnotesize
+\begin{tabular}{llrrr}
+\toprule
+task & generator & AUC & recovered & impossible \\
+\midrule
+city median & real records & 0.918 & 100\% & 0.0\% \\
+city median & marginal only & 0.511 & 3\% & 70.5\% \\
+city median & marginals + pairwise & 0.917 & 100\% & 0.0\% \\
+city median & empirical joint & 0.918 & 100\% & 0.0\% \\
+within category & real records & 0.524 & 100\% & 0.0\% \\
+within category & marginal only & 0.502 & 10\% & 65.7\% \\
+within category & marginals + pairwise & 0.506 & \textbf{25\%} & 0.0\% \\
+within category & empirical joint & 0.524 & 100\% & 0.0\% \\
+\bottomrule
+\end{tabular}
+\caption{training on generated New York records, testing on real ones. Ten seeds.}
+\end{table*}
+
+Matching marginals and pairwise dependence is the bar that PrivBayes and the NIST
+differential privacy winners optimise [5, 6], and roughly what SDV's quality
+report scores [3, 4]. A second recorded prediction, made in advance, was that
+generated records at that fidelity would contain impossible combinations and
+that downstream accuracy would fall as their rate rose. It failed, and the reason
+is structural rather than empirical.
+
+The pairwise generator draws department conditional on category, so it cannot
+emit a pair it never saw: 0.0\% impossible is an identity, not a measurement. The
+learner is additive in one-hot columns and carries no interaction terms, so a
+wrong combination could not have harmed it either. That outcome was fixed by the
+design before any data was touched.
+
+The city-median task cannot separate the fidelity orders for a further reason:
+its label is nearly a function of one column, and a generator that preserves one
+column's relationship to the label gets it for free. Labelling each ticket
+against its own category's median removes that column. On that task the orders do
+separate: pairwise keeps 25\% of the achievable skill where the empirical joint
+keeps 100\%. The ceiling there is 0.524, so the task holds little signal in
+absolute terms and the ratio sits on a small base. It is the only measurement
+here that distinguishes low-order fidelity from the full joint, and the standard
+distribution-level check would score both generators as near-perfect.
 
 \section*{Limits}
 
-Four cities, one domain, one task family, one model class. Municipal services may
-be unusually institution-bound.
+Four cities, one domain, one task family. Municipal services may be unusually
+institution-bound, and 311 feeds have three usable columns, no cross-document
+structure and no pricing, so they are a thin proxy for the multi-entity
+enterprise data the question is really about.
 
-Two authors, and one of them is the experimenter. The independent author is a
-language model, which is a real second author but not a domain practitioner. A
-retired public works manager might do better than either.
+Two blind cities, not four. New York is a contamination control and Chicago its
+transfer target, so neither replicates anything. The unit that replicates is the
+author effect, and its category intervals cross zero.
 
-The waste-collection result is a single family in a single city. It is an
-explanation consistent with the numbers rather than a tested mechanism, and the
-way to test it is to predict in advance, in a fifth city, which families will
-break a prior and check.
+The independent author is a language model. These four feeds are among the most
+widely mirrored public datasets in existence, so blind here means the session
+showed it no durations, not that its weights hold none. This is the largest
+uncontrolled channel in the design, and it produces every headline number. No
+prompt or model version was recorded, so that arm cannot be rerun.
 
 The San Francisco human prior was written knowing what Austin had shown. Its
 rules are blind to San Francisco's rates but its author is not blind to the
-general lesson, so that arm tests transfer of a lesson rather than reasoning from
-scratch.
+general lesson.
 
-Chicago's June week ran roughly twice the volume of its May week, so the carried
-arm compares two operating conditions as well as two cities.
+The ARR result is a subset chosen after seeing which family the prior got wrong,
+in one city. It is an explanation consistent with the numbers rather than a
+tested mechanism. The way to test it is to name the failing families in a fifth
+city in advance and check.
 
-New York carries known artefacts, including one department that closes 89.7\% of
-its tickets at exactly midnight, so its recorded durations are administrative.
+New York carries known artefacts, including one department that closes most of
+its tickets at exactly midnight, so its recorded durations are partly
+administrative.
 
-That low-order fidelity fails to imply downstream utility is established. The
-ladder is included because it shows a distribution-level check cannot see the
-effect this paper measures.
+That low-order fidelity fails to imply downstream utility is established [1, 2,
+8]. The ladder is included because it shows a distribution-level check cannot see
+the effect this paper measures.
 
 \section*{Reproducing this}
 
 \begin{quote}\small\begin{verbatim}
-git clone https://github.com/songwae2000/real-vs-generated
-cd real-vs-generated && python run_all.py
+python run_all.py
 \end{verbatim}\end{quote}
-Four public 311 feeds, no key, no account, no cost, numpy and scikit-learn the
-only dependencies. The first run downloads about 60MB. It prints every table
-above, in order.
+Clone the repository linked at the top of this paper and run that. Four public
+311 feeds, no key, no account, no cost, numpy and scikit-learn the only
+dependencies. The first run downloads about 60MB. It prints every table above,
+in order.
 
-Two runs on the same data are byte-identical, since every random draw is
-seeded. \texttt{scripts/check\_paper.py} walks every table cell in the markdown source
-this document is generated from and fails if a number appears that the run did
-not print. It exists because two figures once reached a draft without being
-computed. The feeds are live, so
-\texttt{data/MANIFEST.json} records the row count and hash of each file these figures
-came from and the run reports any disagreement before printing. A reviewer
-whose numbers differ can tell whether the data moved or the code did.
+Two runs on the same data are byte-identical, since every random draw is seeded.
+\texttt{scripts/check\_paper.py} walks every table cell in the markdown source this
+document is generated from and fails if a number appears that the run did not
+print. It exists because two figures once reached a draft without being computed.
+The feeds are live and backfill in place, so it matches within a stated tolerance
+and reports how much drift it absorbed. \texttt{data/MANIFEST.json} records the row
+count and hash of each file these figures came from, and the run reports any
+disagreement before printing.
 
 The blind priors are one file per author per city in \texttt{src/}, each carrying its
 reasoning and its recorded prediction.
 
 \section*{What it would take to answer the general question}
 
-Predict the failure families before looking. The waste-collection explanation
-implies that any category whose clock is an administrative cycle rather than the
-work itself will break a blind prior. That is checkable: name the categories in a
-fifth city from the taxonomy, record the list, then measure.
+Make the prior generate. The arms here compare rule sets against a fitted
+conditional on real data, which measures how much of a conditional a domain
+expert can guess. The question asked is what generated data costs. Sampling rows
+from the taxonomy and volume counts, labelling them with the prior, training on
+those and testing on real records would turn a share of achievable margin into
+the quantity a buyer needs: how much of the training value of real records a
+generator built without them delivers.
 
-More authors, including practitioners, would separate the procedure from the
-person further than two can.
+Predict the failure families before looking. The ARR explanation implies that any
+category whose clock is an administrative cycle rather than the work itself will
+break a blind prior. Name those categories in a fifth city from the taxonomy,
+record the list, then measure.
+
+More authors, including practitioners, and a language model whose prompt and
+version are recorded, would separate the procedure from the person.
 
 The procedural point stands regardless. A prior can only be evaluated as a prior
 once per dataset, before anyone has seen the outcomes, and the recorded
-prediction has to come first. Of the three predictions here, the only one made in
+prediction has to come first. Of the predictions here, the only one made in
 genuine ignorance was the one that turned out wrong.
+
+\section*{References}
+
+[1] A. F. Karr, C. N. Kohnen, A. Oganian, J. P. Reiter and A. P. Sanil. A
+framework for evaluating the utility of data altered to protect confidentiality.
+\textit{The American Statistician}, 60(3):224-232, 2006.
+
+[2] J. Snoke, G. M. Raab, B. Nowok, C. Dibben and A. Slavkovic. General and
+specific utility measures for synthetic data. \textit{Journal of the Royal Statistical Society: Series A}, 181(3):663-688, 2018.
+
+[3] N. Patki, R. Wedge and K. Veeramachaneni. The synthetic data vault. In \textit{IEEE International Conference on Data Science and Advanced Analytics}, 2016.
+
+[4] DataCebo. SDMetrics quality report: column shapes and column pair trends.
+Documentation, 2024.
+
+[5] R. McKenna, G. Miklau and D. Sheldon. Winning the NIST contest: a scalable
+and general approach to differentially private synthetic data. \textit{Journal of Privacy and Confidentiality}, 11(3), 2021.
+
+[6] J. Zhang, G. Cormode, C. M. Procopiuc, D. Srivastava and X. Xiao. PrivBayes:
+private data release via Bayesian networks. \textit{ACM Transactions on Database Systems}, 42(4), 2017.
+
+[7] A. C. Cameron and D. L. Miller. A practitioner's guide to cluster-robust
+inference. \textit{Journal of Human Resources}, 50(2):317-372, 2015.
+
+[8] L. Hansen, N. Seedat, M. van der Schaar and A. Petrovic. Reimagining
+synthetic tabular data generation through data-centric AI: a comprehensive
+benchmark. In \textit{Advances in Neural Information Processing Systems, Datasets and Benchmarks Track}, 2023.
 
 \end{document}

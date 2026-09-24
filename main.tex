@@ -40,22 +40,24 @@ the data is useful downstream, so the more practical question is which
 properties of real records the hand-written rules can actually supply, and which
 ones a client has to hand over.
 
-I tested one property that a generator has to get right before any of the others
-matter: how long a job takes. If domain reasoning alone can predict that, a
-taxonomy is enough to build a generator. If it cannot, the behaviour has to come
-from the client's own records, and knowing which case you are in is worth money.
+I built the study on the public 311 service request feeds of four cities, where
+each ticket is a unit of work and the question asked of it is how long it will
+take to close. Duration suits the test for two reasons. It is the kind of
+behaviour a generator has to get right before anything built on top of it means
+much, and a city's service catalogue happens to give you exactly what a
+procedural generator would start from, which is a list of job types and the
+departments that own them with no timings attached. So the catalogue stands in
+for the description of a business, and the recorded durations stand in for the
+client records a generator is trying to do without. If reasoning from the
+catalogue alone can predict duration, a taxonomy is enough to build a generator.
+If it cannot, the behaviour has to come from the client's own records, and
+knowing which case you are in is worth money.
 
 \section*{Hypothesis}
 
 My hypothesis was that rules reasoned from the nature of the work capture a
 substantial share of what real operational records tell you about how long a job
 takes.
-
-I fixed that in numbers before running anything. Rules written without sight of
-the target data should reach an AUC between 0.60 and 0.72, and anything below
-0.55 would mean the reasoning adds nothing. The null I test against is that the
-rules carry no information about which kind of work runs slow, so that any score
-they reach is available from carving up the same taxonomy at random.
 
 \section*{Method}
 
@@ -88,6 +90,12 @@ rather than work.
 The task is to predict, at the moment a ticket opens, whether it will take longer
 than the median to close. Recovered skill is the share of the achievable margin
 over chance that an arm reaches.
+
+I fixed the hypothesis in numbers before running anything. Rules written without
+sight of the target data should reach an AUC between 0.60 and 0.72, and anything
+below 0.55 would mean the reasoning adds nothing. The null I test against is that
+the rules carry no information about which kind of work runs slow, so that any
+score they reach is available from carving up the same taxonomy at random.
 
 I need a ceiling to measure against. A prior reads two columns, the service
 category and the owning department, so I fit the conditional rate straight from

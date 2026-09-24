@@ -3,7 +3,7 @@
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 \usepackage[british]{babel}
-\usepackage[margin=2.3cm]{geometry}
+\usepackage[margin=2.1cm]{geometry}
 \usepackage{booktabs}
 \usepackage{microtype}
 \usepackage{titlesec}
@@ -11,7 +11,7 @@
 
 \titlespacing*{\section}{0pt}{1.1em}{0.4em}
 \titlespacing*{\subsection}{0pt}{0.9em}{0.3em}
-\setlength{\parskip}{0.45em}
+\setlength{\parskip}{0.40em}
 \setlength{\parindent}{0pt}
 
 \title{\vspace{-1.6em}\textbf{Domain priors do not substitute for real
@@ -113,20 +113,24 @@ and their evaluation is commit \texttt{4400226}.
 
 \begin{center}
 \small
-\begin{tabular}{llcrrr}
+\begin{tabular}{llccrrl}
 \toprule
-prior & evaluated on & author had the site's rates & AUC & ceiling & recovered \\
+prior & tested on & had the rates & AUC [95\% CI] & ceiling & recov. & vs chance \\
 \midrule
-Austin, \textbf{pre-registered} & Austin & \textbf{no} & \textbf{0.494} & 0.886 & \textbf{$-1\%$} \\
-New York & Chicago & no & 0.496 & 0.729 & $-2\%$ \\
-New York & New York & yes & 0.840 & 0.918 & 81\% \\
+Austin, \textbf{pre-reg.} & Austin & \textbf{no} & \textbf{0.494} [0.481, 0.508] & 0.886 & \textbf{$-1\%$} & \textbf{indistinguishable} \\
+New York & Chicago & no & 0.496 [0.492, 0.499] & 0.729 & $-2\%$ & below \\
+New York & New York & yes & 0.840 [0.837, 0.843] & 0.918 & 81\% & above \\
 \bottomrule
 \end{tabular}
 \end{center}
 
-\textbf{H is refuted.} The blind prior scores 0.494 against a ceiling of 0.886.
-The recorded prediction of 0.60 to 0.72 was wrong, and wrong in the direction
-that says domain reasoning supplied nothing at all.
+Intervals are 1,000-resample bootstraps of the test set. The null baseline,
+always predicting the majority class, scores 0.500 by construction.
+
+\textbf{H is refuted.} The blind prior scores 0.494, and its interval spans
+chance. It is not weakly informative, it is statistically indistinguishable from
+guessing. The recorded prediction of 0.60 to 0.72 was wrong, and wrong in the
+direction that says domain reasoning supplied nothing at all.
 
 This is not a coverage failure. The Austin rules fired on 98.9\% of tickets,
 producing scores spread from 0.05 to 0.95. Tickets they called slow ran slow
@@ -137,11 +141,37 @@ The same procedure reaches 81\% of the ceiling when the author has the site's
 rates in hand. The distance between 81\% and nothing is the measure of how much
 of that performance comes from the site rather than from the domain.
 
-The carried-across arm says the same thing from the other direction. The New
-York rules reach chance on Chicago. Their department rules match 0.0\% of
-Chicago rows, being New York acronyms, and their keyword list is New York
-housing-stock vocabulary that in Chicago points the wrong way: rows it calls
-slow are slow 47.3\% of the time against 58.6\% for everything else.
+The carried-across arm makes the same point from the other direction, and
+slightly more sharply: its interval sits entirely below 0.5, so on Chicago the
+New York rules are not merely uninformative but actively misleading. Their
+department rules match 0.0\% of Chicago rows, being New York acronyms, and
+their keyword list is New York housing-stock vocabulary that in Chicago points
+the wrong way. Rows it calls slow are slow 47.3\% of the time against 58.6\%
+for everything else.
+
+\subsection*{The columns were not the problem}
+
+A prior that reasons over service category and department could in principle
+reach whatever those two columns support. Fitting the conditional rate directly
+from training records, using nothing but those same two columns, gives the
+ceiling for any rule of that shape:
+
+\begin{center}
+\small
+\begin{tabular}{lrrr}
+\toprule
+city & best from category and department & the prior reached & gap \\
+\midrule
+Austin (blind) & 0.883 & 0.494 & \textbf{0.389} \\
+New York (informed) & 0.918 & 0.840 & 0.078 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+The columns carry nearly all of the available signal in both cities. What
+separates the two rows is whether the author had the rates. The gap is the price
+of not knowing them, and it is five times larger when the author is working
+blind.
 
 \subsection*{Why domain reasoning fails here}
 

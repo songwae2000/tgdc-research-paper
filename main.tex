@@ -48,9 +48,10 @@ recorded durations stand in for the client records a generator does without.
 
 \section*{Hypothesis}
 
-My hypothesis is that rules reasoned from the nature of the work capture a
-substantial share of what real operational records tell you about how long a job
-takes.
+My hypothesis is that rules reasoned from the nature of the work, written
+without sight of any outcome, predict how long a job takes at an AUC between
+0.60 and 0.72, and that anything below 0.55 would mean the reasoning adds
+nothing.
 
 \section*{Method}
 
@@ -84,23 +85,31 @@ The task is to predict, at the moment a ticket opens, whether it will take longe
 than the median to close. Recovered skill is the share of the achievable margin
 over chance that an arm reaches.
 
-I fixed the hypothesis in numbers before running anything. Rules written without
-sight of the target data should reach an AUC between 0.60 and 0.72, and anything
-below 0.55 would mean the reasoning adds nothing. The null I test against is that
-the rules carry no information about which kind of work runs slow, so that any
-score they reach is available from carving up the same taxonomy at random.
+I fixed that band before running anything. Recovered skill, the unit I report
+alongside AUC, is \texttt{(AUC - 0.5) / (ceiling - 0.5)}. The null I test against is
+that the rules carry no information about which kind of work runs slow, so that
+any score they reach is available from carving up the same taxonomy at random.
 
 I need a ceiling to measure against. A prior reads two columns, the service
 category and the owning department, so I fit the conditional rate straight from
-those same two columns to see what they support. Comparing against that separates
-a weak rule from weak features. It is one estimator rather than a proved upper
-bound, so a rule can beat it.
+those same two columns to see what they support. This is a taxonomy ceiling
+rather than any general limit on skill, and comparing against it separates a weak
+rule from weak features. It is one estimator and not a proved upper bound, so a
+rule can beat it, and one does. I should also say that I settled on this
+estimator after the first Austin arm had already been scored against a different
+one, so the AUCs here are pre-registered and the denominator is not. Every
+percentage in this paper is reported next to the raw AUC for that reason.
 
 I report two kinds of interval, because a prior is a function of the category and
 gives the same answer to every ticket in one. Resampling tickets treats 17,007
-San Francisco rows as independent when I really have 37, so I resample both ways,
-and the category interval is the one a claim about unseen work has to survive
-[1].
+San Francisco rows as independent when I really have 37, so I resample both ways
+[1]. Two things have to be said about that second unit. Its consistency results
+are asymptotic in the number of clusters and assume a roughly balanced design,
+and mine is neither, because one San Francisco category holds 34\% of the rows and
+the effective count is 5.3 against 37 categories, with Austin at 22.3 against
+117. At that size the interval is wide enough that almost nothing could clear it,
+so I read the category intervals as descriptive rather than as tests, and where I
+say something is not established I mean this design cannot establish it [13].
 
 I pulled each catalogue with the query limited to category names and row counts,
 so no duration, rate or outcome reached me. I wrote the rules from that alone,
@@ -158,10 +167,10 @@ apart.
 \toprule
 city & arm & AUC & [95\% CI] & recovered & p vs H0 \\
 \midrule
-Austin & blind rules & 0.611 &  & 29\% & 0.127 \\
+Austin & blind rules & 0.611 &  & 29\% & 0.110 \\
 Austin & category frequency alone & 0.516 & [0.351, 0.726] & 4\% &  \\
 Austin & same rules, verdicts shuffled & 0.501 & [0.322, 0.674] & 0\% &  \\
-San Francisco & blind rules & 0.777 &  & 72\% & 0.0005 \\
+San Francisco & blind rules & 0.777 &  & 72\% & 0.0015 \\
 San Francisco & category frequency alone & 0.672 & [0.441, 0.785] & 45\% &  \\
 San Francisco & same rules, verdicts shuffled & 0.499 & [0.312, 0.690] & 0\% &  \\
 \bottomrule
@@ -174,12 +183,12 @@ taxonomy and row counts and the same set of scores, and breaks only which
 category received which score. That draws from the null directly, so the share of
 shuffles reaching the observed AUC is a permutation p-value (Table 3).
 
-The two cities part company here. In San Francisco none of 2,000 shuffles reached
-0.777, giving p below 0.0005, and I reject the null. In Austin 254 of them
-reached 0.611, giving p of 0.127, so I cannot. The reasoning is doing real work
-in San Francisco, and in Austin it is not distinguishable from a lucky cut of the
-same taxonomy. That agrees with the category intervals above and it is the
-sharper way to say it.
+The null shuffles one verdict per category, so the arm has to be scored the same
+way for the two to be comparable. Scored per category it reaches 0.741 in San
+Francisco, and 2 of 2,000 shuffles match it, giving p of 0.0015. In Austin it
+reaches 0.617 and 220 shuffles match it, giving p of 0.110. So I reject the null
+in San Francisco and cannot in Austin. The reasoning does real work in one city
+and is not distinguishable from a lucky cut of the same taxonomy in the other.
 
 Frequency is the harder baseline, because the pull gave me row counts and row
 counts are themselves real operational data. Scored rarer-is-slower, frequency
@@ -229,19 +238,22 @@ ignorance is the one that failed.
 \toprule
 subset & rules & n & prior & ceiling & recovered \\
 \midrule
-Austin, all tickets & mine & 6,029 & 0.494 & 0.883 & $-1\%$ \\
-Austin, excluding ARR & mine & 4,008 & 0.644 & 0.881 & 38\% \\
-Austin, all tickets & the model & 6,029 & 0.611 & 0.883 & 29\% \\
-Austin, excluding ARR & the model & 4,008 & 0.766 & 0.881 & 70\% \\
-San Francisco, all tickets & mine & 17,007 & 0.676 & 0.886 & 46\% \\
-San Francisco, all tickets & the model & 17,007 & 0.777 & 0.886 & 72\% \\
+Austin, all & mine & 6,029 & 0.494 & 0.883 & $-1\%$ \\
+Austin, all & the model & 6,029 & 0.611 & 0.883 & 29\% \\
+Austin, minus ARR & mine & 4,008 & 0.644 & 0.881 & 38\% \\
+Austin, minus ARR & the model & 4,008 & 0.766 & 0.881 & 70\% \\
+SF, all & mine & 17,007 & 0.676 & 0.886 & 46\% \\
+SF, all & the model & 17,007 & 0.777 & 0.886 & 72\% \\
+SF, minus top 2 & mine & 7,255 & 0.571 & 0.851 & 20\% \\
+SF, minus top 2 & the model & 7,255 & 0.595 & 0.851 & 27\% \\
 \bottomrule
 \end{tabular}
-\caption{removing everything one Austin department owns, for both sets of rules.}
+\caption{dropping the highest-volume categories in each city, for both sets of rules. The same operation run both ways.}
 \end{table*}
 
 Austin Resource Recovery (Table 4) is 34\% of the city's volume and 70\% of its
-work runs slow, yet both sets of rules call it fast at a mean prediction of 0.37.
+work runs slow, yet both sets of rules call it fast, at a mean prediction of 0.37
+for the model and 0.05 for mine.
 Take it out and the model's rules reach 70\% against San Francisco's 72\%, while
 mine reach 38\% against 46\%, so the gap closes for both of us.
 
@@ -249,22 +261,64 @@ The reason is plain enough. A missed collection sits open until the next
 scheduled route, a week away. The work is routine. The ticket is not, and nothing
 in the phrase ARR - Compost tells you so.
 
-Two caveats. ARR is a department prefix rather than a category called waste, so
-removing it also removes fast work that department owns: ARR - Dead Animal
-Collection runs 0.0\% slow and ARR - General 8.9\%, both predicted fast and both
-right. San Francisco has the same problem at a quarter of the size, in Graffiti
-Public, which is 8.2\% of volume and 85.1\% slow but priced at 0.37, and this
-subset does not remove it.
+Run on San Francisco the same operation cuts the other way, and that is the more
+important half of the table. Its two largest categories, Street and Sidewalk
+Cleaning and Parking Enforcement, are 57\% of test volume, and both are fast and
+both are called fast. Drop them and the ceiling barely moves, 0.886 to 0.851,
+while the model falls from 72\% to 27\% and I fall from 46\% to 20\%. A two-line rule
+calling those two fast and everything else slow scores 0.699 by itself. The 72\%
+rests on a few high-volume decisions, not on 37 categories of reasoning.
+
+Two further caveats. ARR is a department prefix rather than a category called
+waste, so removing it also removes fast work that department owns: ARR - Dead
+Animal Collection runs 0.0\% slow and ARR - General 8.9\%, both predicted fast and
+both right. And Graffiti Public is 8.2\% of San Francisco volume and 85.1\% slow
+but priced at 0.37 by the model and 0.09 by me, so the same failure ARR shows in
+Austin is present there and no subset here removes it.
+
+\subsection*{What the prior actually beats}
+
+\begin{center}
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{llr}
+\toprule
+city & reference & AUC \\
+\midrule
+Austin & real data, category only & 0.883 \\
+Austin & real data, both columns & 0.883 \\
+Austin & blind rules, the model & 0.611 \\
+San Francisco & real data, category only & 0.771 \\
+San Francisco & real data, both columns & 0.886 \\
+San Francisco & blind rules, the model & 0.777 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+The sharpest way to put the San Francisco result is not as a percentage. A
+conditional rate fitted on the real data, using the category column alone,
+scores 0.771. The blind rules score 0.777. Rules written by an author who never
+saw an outcome beat a model that saw every outcome, given the same column
+(Table 5). The model's rules have the owning department as well, which the
+category-only conditional does not, so this is not quite like for like, but the
+direction is the finding and it does not depend on choosing a denominator.
+
+That does not hold in Austin, where the category-only conditional reaches 0.883
+and the blind rules 0.611.
 
 \subsection*{The finding}
 
-A blind prior recovers about 70\% of the achievable skill on work whose length
-follows from the job. It recovers nothing on work whose clock is an
-administrative cycle. What decides its value is how much of a client's volume
-sits in the second group, and you cannot see that in their taxonomy.
+Stated as an ordering rather than a level, because the level moves with which
+categories are in the subset and the interval on it is wide. Blind rules beat
+chance in San Francisco and not in Austin, the model's rules beat mine in both
+cities, and removing one administratively clocked department closes most of the
+gap between the cities for both authors.
 
-The 70\% is the model's, in both cities. I reach 38\% and 46\% on the same
-comparison. The pattern holds for both of us. The level does not.
+The explanation I offer for that ordering, that a blind prior holds where
+duration follows from the job and fails where the clock is an administrative
+cycle, is a hypothesis and not a result. I derived the partition from which
+categories my rules got wrong, in one city, so it cannot fail against the data
+that produced it. The test that would settle it is in the closing section.
 
 \subsection*{What the real rates are worth}
 
@@ -295,54 +349,28 @@ only 17.1\% of Chicago rows because they are New York acronyms.
 
 \subsection*{Distribution fidelity misses all of this}
 
-\begin{table*}[t]
-\centering
-\footnotesize
-\begin{tabular}{llrrr}
-\toprule
-task & generator & AUC & recovered & impossible \\
-\midrule
-city median & real records & 0.918 & 100\% & 0.0\% \\
-city median & marginal only & 0.511 & 3\% & 70.5\% \\
-city median & marginals + pairwise & 0.917 & 100\% & 0.0\% \\
-city median & empirical joint & 0.918 & 100\% & 0.0\% \\
-within category & real records & 0.524 & 100\% & 0.0\% \\
-within category & marginal only & 0.502 & 10\% & 65.7\% \\
-within category & marginals + pairwise & 0.506 & 25\% & 0.0\% \\
-within category & empirical joint & 0.524 & 100\% & 0.0\% \\
-\bottomrule
-\end{tabular}
-\caption{training on generated New York records and testing on real ones. Ten seeds.}
-\end{table*}
+My first recorded hypothesis, fixed in \texttt{HYPOTHESIS.md} before I ran anything, was
+that generated records matching real data to low-order fidelity would still hold
+combinations the real process could never produce, and that downstream accuracy
+would fall as those rose. I tested it by fitting generators on real New York
+records, sampling from them, training on the sample and testing on real records
+[2]. It failed, and for a structural reason rather than an empirical one. My
+pairwise generator draws department conditional on category, so it cannot emit a
+pair it never saw and its 0.0\% impossible rate is an identity. The learner is
+additive over one-hot columns with no interaction terms, so a wrong combination
+could not have hurt it either. Both were settled by the design before any data
+was touched, and the work moved to the narrower question this paper answers.
+That is why my stated hypothesis and my pre-registration are not the same
+sentence.
 
-I fit each generator on real New York records, sample from it, train a model on
-the sample, and test on real records. Train on synthetic, test on real [2]
-(Table 6). Matching marginals and pairwise dependence is the bar PrivBayes and
-the NIST winner MST fit directly [3, 4]. It is roughly what SDV's quality report
-scores afterwards [5, 6]. That report is a diagnostic run on a generator's
-output, and similarity and usefulness may not correlate [6].
-
-This ladder tests my first recorded hypothesis, fixed in \texttt{HYPOTHESIS.md} before I
-ran anything. I expected generated records at that fidelity to hold combinations
-the real process could never produce. I expected accuracy to fall as those rose.
-It failed. The reason is structural rather than empirical, and the work moved to
-the narrower question this paper answers. That is why my stated hypothesis and my
-pre-registration are not the same sentence.
-
-The pairwise generator draws department conditional on category, so it cannot
-emit a pair it never saw and 0.0\% impossible is an identity rather than a
-measurement. The learner is additive over one-hot columns with no interaction
-terms, so a wrong combination could not have hurt it either. The design settled
-that outcome before I touched any data.
-
-The city-median task cannot separate the two fidelity orders for a further
-reason: its label is nearly a function of one column, which a pairwise generator
-reproduces for free. Labelling each ticket against its own category's median
-takes that column away, and then the orders do separate, with pairwise keeping
-25\% where the joint keeps 100\%. The ceiling there is only 0.524, so the task
-holds little signal and the ratio sits on a small base. It is still the one
-measurement here that tells low-order fidelity from the full joint, and a
-distribution-level check would score both generators as near-perfect.
+The ladder does still show the one thing it is here for. Matching marginals alone
+loses almost everything, 0.511 against a 0.918 ceiling, while adding pairwise
+dependence recovers all of it, 0.917. A generator that clears the column shapes
+and column pair trends a quality report scores [5, 6] is indistinguishable from
+real records on this task, which says a distribution-level check cannot see the
+effect this paper measures. My generators are conditional probability tables with
+no privacy noise, so they are not PrivBayes or MST, but the order of structure
+they keep is the order those methods fit [3, 4].
 
 \section*{Limits}
 
@@ -417,8 +445,8 @@ and general approach to differentially private synthetic data. \textit{J. Privac
 
 [5] N. Patki, R. Wedge and K. Veeramachaneni. The synthetic data vault. In \textit{IEEE DSAA}, pages 399-410, 2016.
 
-[6] DataCebo. SDMetrics quality report: column shapes and column pair trends.
-Software and documentation, doi:10.5281/zenodo.14279167, 2024.
+[6] SDV Team. Quality report: column shapes and column pair trends. SDMetrics
+documentation, docs.sdv.dev/sdmetrics, accessed 24 September 2026.
 
 [7] A. F. Karr, C. N. Kohnen, A. Oganian, J. P. Reiter and A. P. Sanil. A
 framework for evaluating the utility of data altered to protect confidentiality.
@@ -441,5 +469,9 @@ how (not) to publish and use synthetic data. In \textit{ICML}, PMLR 202:34793-34
 [12] S. Bordt, H. Nori, V. Rodrigues, B. Nushi and R. Caruana. Elephants never
 forget: memorization and learning of tabular data in large language models. In
 \textit{COLM}, 2024.
+
+[13] A. C. Cameron, J. B. Gelbach and D. L. Miller. Bootstrap-based improvements
+for inference with clustered errors. \textit{Review of Economics and Statistics},
+90(3):414-427, 2008.
 
 \end{document}

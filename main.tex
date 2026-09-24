@@ -1,8 +1,14 @@
-\documentclass[10pt,a4paper]{article}
+\documentclass[10pt,a4paper,twocolumn]{article}
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 \usepackage[british]{babel}
-\usepackage[margin=2.0cm]{geometry}
+\usepackage[margin=1.8cm]{geometry}
+\setlength{\columnsep}{0.8cm}
+\setcounter{topnumber}{3}
+\setcounter{totalnumber}{4}
+\renewcommand{\topfraction}{0.9}
+\renewcommand{\textfraction}{0.08}
+\renewcommand{\floatpagefraction}{0.8}
 \usepackage{booktabs}
 \usepackage{microtype}
 \usepackage{titlesec}
@@ -11,16 +17,22 @@
 \titlespacing*{\subsection}{0pt}{0.8em}{0.25em}
 \setlength{\parskip}{0.35em}
 \setlength{\parindent}{0pt}
-\title{\vspace{-1.6em}\textbf{What a domain prior can and cannot replace}\vspace{-0.4em}}
+\title{\vspace{-1.0em}\textbf{What a domain prior can and cannot replace}\vspace{-0.4em}}
 \author{\textbf{Cajetan Songwae} \\
   \small{\href{mailto:songwae2000@gmail.com}{songwae2000@gmail.com}} \\
   \small{TGDC case study, research track}}
 \date{}
 \begin{document}
-\maketitle
-\vspace{-2.2em}
+\twocolumn[
+  \begin{@twocolumnfalse}
+  \maketitle
+  \vspace{-2.0em}
+  \end{@twocolumnfalse}
+]
 
-Every figure below is printed by \texttt{python run\_all.py}.
+Every figure below is printed by \texttt{python run\_all.py}. Reproducing the paper is
+one command against four public feeds, with no key, no account and no cost. See
+the closing section.
 
 \section*{Question}
 
@@ -46,22 +58,25 @@ fails, the behaviour has to come from the client's own data.
 
 \section*{Method}
 
-\textbf{Data.} Public 311 service request feeds from four cities. These are real
+\textbf{Data} (Table 1). Public 311 service request feeds from four cities. These are real
 operational records, written by the organisations that do the work. Two
 complete calendar weeks from each, the weeks of 4 May and 8 June 2026.
 
-\begin{center}\small
-\begin{tabular}{llrrr}
+\begin{table*}[t]
+\centering
+\footnotesize
+\begin{tabular}{lrrrr}
 \toprule
 city & train & test & median resolution & categories \\
 \midrule
-New York & 72,206 & 78,296 & 5.4h & 132 \\
-Chicago & 17,291 & 38,671 & 118.0h & 97 \\
+New York & 72,206 & 78,296 & 5.4h & 164 \\
+Chicago & 17,291 & 38,671 & 118.0h & 92 \\
 Austin & 5,968 & 6,029 & 23.8h & 117 \\
 San Francisco & 17,723 & 17,007 & 15.1h & 37 \\
 \bottomrule
 \end{tabular}
-\end{center}
+\caption{the four feeds, two complete weeks from each.}
+\end{table*}
 
 Tickets still open at the pull date are kept and treated as slow, since all are
 months past any threshold used. Chicago closes most of its feed within a second
@@ -91,8 +106,10 @@ model that saw only the taxonomy and was instructed not to look anything up.
 
 \subsection*{What a blind prior recovers}
 
-\begin{center}\small
-\begin{tabular}{llrrrr}
+\begin{table*}[t]
+\centering
+\footnotesize
+\begin{tabular}{llrrrl}
 \toprule
 city & author & AUC [95\% CI] & ceiling & recovered & vs chance \\
 \midrule
@@ -102,12 +119,13 @@ San Francisco & human & 0.676 [0.670, 0.684] & 0.886 & 46\% & above \\
 San Francisco & independent & 0.777 [0.770, 0.784] & 0.886 & \textbf{72\%} & above \\
 \bottomrule
 \end{tabular}
-\end{center}
+\caption{what a blind prior recovers, by city and by author.}
+\end{table*}
 
 Intervals are 1,000-resample bootstraps. The null baseline, always predicting
 the majority class, scores 0.500 by construction.
 
-\textbf{H cannot be answered yes or no.} A blind prior recovers 72\% of the achievable
+\textbf{H cannot be answered yes or no} (Table 2). A blind prior recovers 72\% of the achievable
 skill in San Francisco and nothing at all in Austin. Testing one city would have
 produced a confident conclusion in either direction, and the direction would
 have been an artefact of the city.
@@ -119,8 +137,10 @@ magnitude twice. \textbf{City} is much larger: the same author moves from 29\% t
 
 \subsection*{Three predictions, recorded before evaluation}
 
-\begin{center}\small
-\begin{tabular}{llrr}
+\begin{center}
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{lrrl}
 \toprule
 arm & predicted & observed & inside band \\
 \midrule
@@ -137,8 +157,10 @@ achievement and is reported as such.
 
 \subsection*{One category family explains the gap between the cities}
 
-\begin{center}\small
-\begin{tabular}{llrrr}
+\begin{table*}[t]
+\centering
+\footnotesize
+\begin{tabular}{lrrrr}
 \toprule
 subset & n & prior & ceiling & recovered \\
 \midrule
@@ -147,9 +169,10 @@ Austin, excluding waste collection & 4,008 & 0.766 & 0.881 & \textbf{70\%} \\
 San Francisco, all tickets & 17,007 & 0.777 & 0.886 & 72\% \\
 \bottomrule
 \end{tabular}
-\end{center}
+\caption{removing one category family closes the gap between the cities.}
+\end{table*}
 
-Remove one family of work from Austin and its blind prior recovers 70\%, which is
+Remove one family of work from Austin (Table 3) and its blind prior recovers 70\%, which is
 San Francisco's 72\%. The cities were never different. One category family was.
 
 Waste collection is 34\% of Austin's volume and 70\% of it runs slow. The prior
@@ -162,10 +185,12 @@ San Francisco has no equivalent. Its two largest categories, street cleaning and
 parking enforcement, are 57\% of volume, and both behave the way the work
 suggests.
 
-\begin{center}\small
-\begin{tabular}{llrr}
+\begin{center}
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{lrrr}
 \toprule
-city & categories & top 5 share & volume in wrong-direction categories \\
+city & categories & top 5 share & volume misread \\
 \midrule
 Austin & 117 & 40\% & 35\% \\
 San Francisco & 37 & 78\% & 17\% \\
@@ -184,7 +209,9 @@ taxonomy.
 
 \subsection*{What having the rates is worth}
 
-\begin{center}\small
+\begin{table*}[t]
+\centering
+\footnotesize
 \begin{tabular}{llrrr}
 \toprule
 prior & tested on & AUC [95\% CI] & ceiling & recovered \\
@@ -193,9 +220,10 @@ New York & New York & 0.840 [0.837, 0.843] & 0.918 & 81\% \\
 New York, carried across & Chicago & 0.496 [0.492, 0.499] & 0.717 & $-2\%$ \\
 \bottomrule
 \end{tabular}
-\end{center}
+\caption{the same procedure with the site's rates in hand.}
+\end{table*}
 
-Rules written with a city's conditional rates in hand reach 81\% there, above the
+Rules written with a city's conditional rates in hand (Table 4) reach 81\% there, above the
 72\% a blind author reached in San Francisco but not by much. The same rules
 carried to another city fall entirely below chance. Their interval excludes 0.5
 from beneath, so they are not merely uninformative but actively misleading. The
@@ -203,10 +231,12 @@ department rules match 0.0\% of Chicago rows, being New York acronyms.
 
 \subsection*{Distribution fidelity does not detect any of this}
 
-\begin{center}\small
-\begin{tabular}{llrr}
+\begin{center}
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{lrrr}
 \toprule
-generator & AUC & recovered & records that cannot occur \\
+generator & AUC & recovered & impossible \\
 \midrule
 real records (ceiling) & 0.918 & 100\% & 0.0\% \\
 marginal only & 0.466 & $-8\%$ & 70.5\% \\
@@ -250,6 +280,26 @@ its tickets at exactly midnight, so its recorded durations are administrative.
 That low-order fidelity fails to imply downstream utility is established. The
 ladder is included because it shows a distribution-level check cannot see the
 effect this paper measures.
+
+\section*{Reproducing this}
+
+\begin{quote}\small\begin{verbatim}
+python run_all.py
+\end{verbatim}\end{quote}
+Four public 311 feeds, no key, no account, no cost, numpy and scikit-learn the
+only dependencies. The first run downloads about 60MB and takes a few minutes.
+It prints the six tables above, in order.
+
+Two runs on the same data are byte-identical, since every random draw is
+seeded. \texttt{scripts/check\_paper.py} walks every table cell here and fails if a
+number appears that the run did not print, which exists because two figures
+once reached a draft without being computed. The feeds are live, so
+\texttt{data/MANIFEST.json} records the row count and hash of each file these figures
+came from and the run reports any disagreement before printing. A reviewer
+whose numbers differ can tell whether the data moved or the code did.
+
+The blind priors are one file per author per city in \texttt{src/}, each carrying its
+reasoning and its recorded prediction.
 
 \section*{What it would take to answer the general question}
 

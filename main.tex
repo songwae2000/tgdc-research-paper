@@ -14,8 +14,8 @@
 \setlength{\parskip}{0.45em}
 \setlength{\parindent}{0pt}
 
-\title{\vspace{-1.6em}\textbf{A domain prior remembers the site it was written
-against}\vspace{-0.4em}}
+\title{\vspace{-1.6em}\textbf{Domain priors do not substitute for real
+operational data}\vspace{-0.4em}}
 \author{\textbf{Cajetan Songwae} \\
   \small{\href{mailto:songwae2000@gmail.com}{songwae2000@gmail.com}} \\
   \small{TGDC case study, research track}}
@@ -29,30 +29,29 @@ against}\vspace{-0.4em}}
 
 \section*{Question}
 
-A lab that generates enterprise data has to decide whether its generator is any
-good. The usual check is to train a model on the generated records and score it
-on held-out real records from the organisation the generator was built for.
+Labs generate enterprise data from procedurally built companies: an org chart, a
+taxonomy of work, and hand-written rules for how that work behaves. The appeal
+is obvious. If domain reasoning can supply the behaviour, you do not need the
+client's records to build a usable training set.
 
-When a generator encodes hand-written domain rules, can that check distinguish
-genuine domain knowledge from a memory of the data those rules were written
-against?
+This paper tests whether domain reasoning can in fact supply it, for one
+concrete property of operational work: how long a task takes.
 
 \section*{Hypothesis}
 
-\textbf{H.} The conditional structure of real operational data is site-specific
-rather than domain-general. A generator built from domain priors written against
-one organisation encodes that organisation. It will work within that site and
-fail across sites, and evaluation on held-out records from the same site cannot
-tell the two cases apart.
+\textbf{H.} Domain priors reasoned from the nature of the work capture a
+substantial share of what real operational records provide for predicting task
+duration.
 
-This matters because a triage agent trained on generated data and validated
-against the client it was modelled on will be certified as working, then fail at
-the next client.
+The prediction was recorded before evaluation: a prior written without sight of
+the target data should reach an AUC of 0.60 to 0.72, clearly above the 0.5 of
+chance even if short of what real records achieve. Below 0.55 would mean domain
+reasoning supplies essentially nothing. Above 0.80 would mean it supplies nearly
+everything.
 
-The hypothesis was available to fail in two ways. Rules written against one city
-might carry to another, since municipal service work is broadly similar. Or a
-prior written with no sight of the data might work in place, in which case the
-first prior's apparent skill was knowledge and not memory.
+\textbf{Why it matters.} If H holds, a generator can be built for a client from
+their taxonomy alone. If it fails, the behaviour in generated records has to come
+from somewhere else, and the obvious somewhere else is the client's own data.
 
 \section*{Method}
 
@@ -87,62 +86,69 @@ and differences between arms come from the training data. Recovered skill is the
 share of the ceiling's advantage over chance that an arm reaches,
 $(\mathrm{arm}-0.5)/(\mathrm{ceiling}-0.5)$.
 
-\textbf{The three prior conditions.} The same procedure, under three information
-conditions:
+\textbf{Two information conditions.} The independent variable is what the author
+of the prior could see when writing it.
 
-\begin{enumerate}\itemsep0.15em
-\item \emph{Contaminated, in place.} Rules for New York, which we wrote after
-reading New York's conditional resolution rates, then evaluated on held-out New
-York tickets. This is the condition a lab is in when it builds a generator by
-inspecting a client's data.
-\item \emph{Carried across.} The same New York rules, unmodified, on Chicago.
-\item \emph{Blind, pre-registered.} Rules for Austin, written from Austin's
-service type and department vocabulary alone. The taxonomy was pulled with the
-query restricted to category names and row counts. No duration, rate or
-per-category outcome was requested or displayed. The rules were then written,
-committed with a recorded prediction, and only then evaluated.
-\end{enumerate}
+\emph{Blind.} Rules for Austin, written from Austin's service type and
+department vocabulary alone. The taxonomy was pulled with the query restricted
+to category names and row counts, so no duration, rate or per-category outcome
+was available. The rules were written, committed with the recorded prediction
+above, and only then evaluated. This is the condition H is about.
 
-The pre-registration is checkable. The rules are commit \texttt{8973439} and the
-evaluation is commit \texttt{4400226}.
+\emph{Informed.} Rules for New York, written with that city's conditional
+resolution rates available. This is the condition a lab is in when it builds a
+generator while inspecting a client's data, and it bounds what the same
+procedure achieves with site statistics in hand.
+
+\emph{Carried across.} The New York rules, unmodified, applied to Chicago. This
+separates rules that encode general domain structure from rules that encode one
+site.
+
+The pre-registration is checkable. The blind rules are commit \texttt{8973439}
+and their evaluation is commit \texttt{4400226}.
 
 \section*{Results}
 
-\subsection*{A prior works only where it was written}
+\subsection*{The blind prior reaches chance}
 
 \begin{center}
 \small
 \begin{tabular}{llcrrr}
 \toprule
-rules written for & evaluated on & seen this city's rates & AUC & ceiling & recovered \\
+prior & evaluated on & author had the site's rates & AUC & ceiling & recovered \\
 \midrule
-New York & New York & yes & \textbf{0.840} & 0.918 & \textbf{81\%} \\
+Austin, \textbf{pre-registered} & Austin & \textbf{no} & \textbf{0.494} & 0.886 & \textbf{$-1\%$} \\
 New York & Chicago & no & 0.496 & 0.729 & $-2\%$ \\
-Austin & Austin & \textbf{no, pre-registered} & \textbf{0.494} & 0.886 & $-1\%$ \\
+New York & New York & yes & 0.840 & 0.918 & 81\% \\
 \bottomrule
 \end{tabular}
 \end{center}
 
-The contaminated prior recovers 81\% of the achievable skill in the city it was
-written against. The same procedure recovers nothing anywhere else, and nothing
-at all when the author writes blind.
+\textbf{H is refuted.} The blind prior scores 0.494 against a ceiling of 0.886.
+The recorded prediction of 0.60 to 0.72 was wrong, and wrong in the direction
+that says domain reasoning supplied nothing at all.
 
 This is not a coverage failure. The Austin rules fired on 98.9\% of tickets,
 producing scores spread from 0.05 to 0.95. Tickets they called slow ran slow
 60.1\% of the time and tickets they called fast ran slow 52.9\% of the time, a
 gap of seven points that does not survive as ranking skill.
 
-The carried-across case fails for a visible reason. The department rules match
-0.0\% of Chicago rows, being New York acronyms. The keyword list is New York
-housing-stock vocabulary, and in Chicago it points the wrong way: rows it calls
+The same procedure reaches 81\% of the ceiling when the author has the site's
+rates in hand. The distance between 81\% and nothing is the measure of how much
+of that performance comes from the site rather than from the domain.
+
+The carried-across arm says the same thing from the other direction. The New
+York rules reach chance on Chicago. Their department rules match 0.0\% of
+Chicago rows, being New York acronyms, and their keyword list is New York
+housing-stock vocabulary that in Chicago points the wrong way: rows it calls
 slow are slow 47.3\% of the time against 58.6\% for everything else.
 
-\subsection*{Why the prior fails, in detail}
+\subsection*{Why domain reasoning fails here}
 
-The Austin prior rests on four claims about the nature of municipal work. One
+The blind prior rests on four claims about the nature of municipal work. One
 person attending once is fast. An inspection that opens a process is slow. Work
-needing a crew and materials is slow. A fixed-cycle routine service is fast. Each
-is plausible, and each is wrong somewhere.
+needing a crew and materials is slow. A fixed-cycle routine service is fast.
+Each is plausible, and each is wrong somewhere.
 
 \begin{center}
 \small
@@ -164,19 +170,18 @@ Request Code Officer & 95\% & 82\% \\
 A traffic signal is physically crew work but administratively a same-day safety
 priority. Compost collection is physically routine, but the ticket stays open
 across the collection cycle. Vehicle abatement is a police matter subject to a
-statutory waiting period. In each case the duration is set by the organisation's
-workflow and its closing conventions, not by the nature of the job. Reasoning
-about the work cannot recover that.
+statutory waiting period.
 
-\subsection*{Why the in-place check is easy to pass}
+In each case the duration is set by the organisation's workflow and its closing
+conventions, not by the nature of the job. That is the answer to the question:
+what real operational records supply here is institutional convention, and
+convention is local and arbitrary enough that reasoning about the work does not
+reach it.
 
-Two measurements explain why nobody notices. The New York task is close to a
-lookup on one column: the service category alone scores 0.916 against the 0.918
-ceiling, so it carries everything. And the single rule \texttt{department is not
-NYPD} scores 0.850, beating the thirty-keyword prior's 0.840.
+\subsection*{Distribution fidelity does not detect the problem}
 
-A generator ladder makes the same point. Trained on generated New York records
-and scored on real ones:
+A generator ladder shows why a lab would not notice. Trained on generated New
+York records and scored on real ones:
 
 \begin{center}
 \small
@@ -192,35 +197,32 @@ empirical joint & 0.917 & 100\% & 0.0\% \\
 \end{tabular}
 \end{center}
 
-An evaluation on this task will certify almost anything that gets one column
-roughly right.
+Matching marginals and pairwise dependence, the bar that SDV's Quality Score and
+the NIST differential-privacy winners optimise, recovers everything on this task
+and invents no impossible records. The New York task is close to a lookup on one
+column: the service category alone scores 0.916 against the 0.918 ceiling, and
+the single rule \texttt{department is not NYPD} scores 0.850. An evaluation built
+on this task will certify almost anything that gets one column roughly right.
 
-\subsection*{Two predictions that were wrong}
-
-Before evaluating Austin we recorded a predicted range of 0.60 to 0.72, on the
-reasoning that genuine domain knowledge ought to be worth something even if less
-than a contaminated prior. The observed 0.494 is below that band. The prediction
-was wrong and the hypothesis holds in a stronger form than expected. The
-contaminated prior's advantage was not mostly memory, it was all of it.
-
-A second pre-registered hypothesis also failed. We expected generated records
-violating real-world constraints to explain the loss in downstream skill.
-Marginal-only generation does invent impossible department and category pairs,
-70.5\% of its records, and it does lose everything. But the standard bar of
-marginals plus pairwise invents none at all and loses nothing. That is failure
-mode one of the three written down in advance: at the fidelity order that
-matters, there was nothing to measure.
+A second recorded prediction also failed. We expected generated records
+violating real-world constraints to explain downstream loss. Marginal-only
+generation does invent impossible department and category pairs, 70.5\% of its
+records, and it does lose everything. But the standard bar invents none and
+loses nothing, so at the fidelity order that matters there was nothing to
+measure.
 
 \section*{Limits}
+
+One author wrote both priors by one procedure. A practitioner with real
+municipal operations experience might write rules that reach further, and
+nothing here separates the procedure from the person. This is the largest limit:
+the result bounds what this procedure achieves, not what domain reasoning
+achieves in principle.
 
 Three cities, one domain, one task family, one model class. Municipal service
 records may be unusually institution-bound. A domain with genuinely standardised
 process, such as a regulated industry or a franchise operation, could behave
 differently, and that is the first thing we would test next.
-
-We wrote all three priors by one procedure. A different author, or someone with
-real municipal operations experience, might produce rules that carry. Nothing
-here separates the procedure from the person.
 
 Chicago's June week ran roughly twice the volume of its May week, so the
 carried-across arm compares two operating conditions as well as two cities. Its
@@ -236,18 +238,19 @@ its tickets at exactly midnight, so its recorded durations are administrative.
 
 That many high-order joints share low-order marginals, and that low-order
 fidelity therefore fails to imply downstream utility, is established. We include
-the ladder because it explains why the contamination goes unnoticed.
-
-Finally, the contamination is irreversible. Having inspected New York and
-Chicago, we can no longer write a blind prior for either. A prior-driven
-generator can be evaluated honestly once per dataset, and only before anyone has
-looked.
+the ladder because it explains why a distribution-level check misses this.
 
 \section*{What it would take to answer the general question}
 
-Pre-registration would have to become the default rather than an experiment.
-Rules written against a taxonomy with outcomes withheld, committed, then scored
-once, is the only procedure here that produced a number worth trusting. It cost
-an afternoon.
+Several independent authors writing priors under the blind condition would
+separate the procedure from the person, which is the limit that most constrains
+this result. Domains chosen to include genuinely standardised process would
+establish whether institutional locality is a property of operational data in
+general or of public services in particular.
+
+The procedural point stands on its own. A prior can only be evaluated as a prior
+once per dataset, before anyone has seen the outcomes, and the recorded
+prediction has to come first. That is the only arrangement here that produced a
+number worth trusting, and it cost an afternoon.
 
 \end{document}

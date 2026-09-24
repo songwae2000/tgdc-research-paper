@@ -30,9 +30,12 @@
   \end{@twocolumnfalse}
 ]
 
-Every figure below is printed by \texttt{python run\_all.py}. Reproducing the paper is
-one command against four public feeds, with no key, no account and no cost. See
-the closing section.
+Code, data pipeline and pre-registration history:
+\href{https://github.com/songwae2000/real-vs-generated}{github.com/songwae2000/real-vs-generated}
+
+Every figure below is printed by \texttt{python run\_all.py} in that repository.
+Reproducing the paper is one command against four public feeds, with no key, no
+account and no cost. See the closing section.
 
 \section*{Question}
 
@@ -284,16 +287,18 @@ effect this paper measures.
 \section*{Reproducing this}
 
 \begin{quote}\small\begin{verbatim}
-python run_all.py
+git clone https://github.com/songwae2000/real-vs-generated
+cd real-vs-generated && python run_all.py
 \end{verbatim}\end{quote}
 Four public 311 feeds, no key, no account, no cost, numpy and scikit-learn the
-only dependencies. The first run downloads about 60MB and takes a few minutes.
-It prints the six tables above, in order.
+only dependencies. The first run downloads about 60MB. It prints every table
+above, in order.
 
 Two runs on the same data are byte-identical, since every random draw is
-seeded. \texttt{scripts/check\_paper.py} walks every table cell here and fails if a
-number appears that the run did not print, which exists because two figures
-once reached a draft without being computed. The feeds are live, so
+seeded. \texttt{scripts/check\_paper.py} walks every table cell in the markdown source
+this document is generated from and fails if a number appears that the run did
+not print. It exists because two figures once reached a draft without being
+computed. The feeds are live, so
 \texttt{data/MANIFEST.json} records the row count and hash of each file these figures
 came from and the run reports any disagreement before printing. A reviewer
 whose numbers differ can tell whether the data moved or the code did.

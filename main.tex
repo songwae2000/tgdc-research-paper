@@ -318,10 +318,13 @@ differential privacy winner MST fit directly [3, 4], and roughly what SDV's
 quality report scores after the fact [5, 6]. That report is a diagnostic
 computed on any generator's output, not an objective any of them minimises, and
 its own documentation notes that similarity and usefulness may not correlate
-[6]. A second recorded prediction, made in advance, was that generated records
-at that fidelity would contain impossible combinations and that downstream
-accuracy would fall as their rate rose. It failed, and the reason is structural
-rather than empirical.
+[6]. This ladder tests the project's \textbf{first} recorded hypothesis, fixed in
+\texttt{HYPOTHESIS.md} before any experiment ran: that generated records at that
+fidelity would still contain combinations the real process could never produce,
+and that downstream accuracy would fall as their rate rose. It failed, for a
+structural reason rather than an empirical one, and the work moved to the
+narrower question the rest of this paper answers. That move is why the paper's
+stated H and the pre-registration are not the same sentence.
 
 The pairwise generator draws department conditional on category, so it cannot
 emit a pair it never saw: 0.0\% impossible is an identity, not a measurement. The

@@ -40,31 +40,24 @@ the data is useful downstream, so the more practical question is which
 properties of real records the hand-written rules can actually supply, and which
 ones a client has to hand over.
 
-I built the study on the public 311 service request feeds of four cities, where
-each ticket is a unit of work and the question asked of it is how long it will
-take to close. Duration suits the test for two reasons. It is the kind of
-behaviour a generator has to get right before anything built on top of it means
-much, and a city's service catalogue happens to give you exactly what a
-procedural generator would start from, which is a list of job types and the
-departments that own them with no timings attached. So the catalogue stands in
-for the description of a business, and the recorded durations stand in for the
-client records a generator is trying to do without. If reasoning from the
-catalogue alone can predict duration, a taxonomy is enough to build a generator.
-If it cannot, the behaviour has to come from the client's own records, and
-knowing which case you are in is worth money.
+This study uses public 311 service request feeds from four cities. Each ticket is
+a unit of work, and the question asked of it is how long it takes to close. A
+city's service catalogue lists job types and the departments that own them with
+no timings attached, so it stands in for the description of a business, and the
+recorded durations stand in for the client records a generator does without.
 
 \section*{Hypothesis}
 
-My hypothesis was that rules reasoned from the nature of the work capture a
+My hypothesis is that rules reasoned from the nature of the work capture a
 substantial share of what real operational records tell you about how long a job
 takes.
 
 \section*{Method}
 
-I used operational records from the public 311 service request feeds of four
-cities, written by the people who do the work. Each feed gives the work type, the
-owning department, how the request came in, and when it opened and closed. I took
-two full calendar weeks from each city, the weeks of 4 May and 8 June 2026.
+The records are written by the people who do the work. Each feed gives the work
+type, the owning department, how the request came in, and when it opened and
+closed. I take two full calendar weeks from each city, the weeks of 4 May and 8
+June 2026.
 
 \begin{table*}[t]
 \centering
@@ -116,7 +109,7 @@ San Francisco file 27 seconds after committing it, to match on word boundaries
 instead of substrings, and that was before the city's data existed on disk.
 
 The biggest risk here is that the result describes one person's reasoning, so
-Austin and San Francisco each got two sets of rules under the same blind
+Austin and San Francisco each have two sets of rules written under the same blind
 condition. I wrote one and a language model wrote the other from the same
 catalogue. New York is the contrast, with rules written while I could see the
 real rates, and Chicago is where I carried those rules.

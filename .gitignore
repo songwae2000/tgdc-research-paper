@@ -1,10 +1,10 @@
+__pycache__/
+*.pyc
+.DS_Store
+data/*.json
+!data/MANIFEST.json
+
 *.aux
 *.log
 *.out
-*.toc
-*.fls
-*.fdb_latexmk
 *.synctex.gz
-*.bbl
-*.blg
-.DS_Store

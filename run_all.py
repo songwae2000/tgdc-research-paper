@@ -309,12 +309,32 @@ def main():
                 a = roc_auc_score(ys, score_prior(prior, feats))
                 print(f"    {sub_label:<34}{who:<10}{len(feats):>7}{a:>8.3f}"
                       f"{top:>9.3f}{recovered(a, top):>11.0%}")
+
+        # TABLE 2 tests the null on whole cities only, which leaves the subsets
+        # above resting on a recovered-skill number with no test behind it. The
+        # same shuffle runs on a subset, so there is no reason not to.
+        print(f"    {'permutation test of H0':<34}{'':<10}{'':>7}"
+              f"{'AUC/cat':>8}{'':>9}{'p':>11}")
+        for sub_label, feats, ys in (("all tickets", te_f, te_y),
+                                     (label, keep_f, keep_y)):
+            cats = categories_of(feats)
+            verdicts = prior_by_category(prior_m, feats)
+            by_cat = roc_auc_score(ys, [verdicts[c] for c in cats])
+            _, _, _, pval = stats.permutation_test(verdicts, cats, ys, by_cat)
+            print(f"    {sub_label:<34}{'the model':<10}{len(feats):>7}"
+                  f"{by_cat:>8.3f}{'':>9}{pval:>11.4f}")
         print()
 
     print("  Austin loses the department whose clock is administrative and the")
     print("  prior improves. San Francisco loses its two largest categories and")
     print("  the prior collapses. The same operation, run both ways, because")
     print("  running it only where it helps is not an analysis.")
+    print()
+    print("  The null goes the same way. Austin without ARR rejects at p 0.0025,")
+    print("  so the administrative-clock reading survives outside the subset that")
+    print("  suggested it. San Francisco without its top two stops rejecting, at")
+    print("  p 0.1374 against 0.0015 for the whole city, so the one significant")
+    print("  result does not survive its own robustness check.")
     simple = {}
     for city, prior in ((cities.SF, sf_llm),):
         _, _, te_f, te_y, _ = loaded[city.name]

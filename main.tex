@@ -3,7 +3,7 @@
 \usepackage[T1]{fontenc}
 \usepackage[british]{babel}
 \usepackage[margin=1.5cm]{geometry}
-\setlength{\columnsep}{0.6cm}
+\setlength{\columnsep}{0.65cm}
 \setcounter{topnumber}{3}
 \setcounter{totalnumber}{4}
 \renewcommand{\topfraction}{0.9}
@@ -13,10 +13,10 @@
 \usepackage{microtype}
 \usepackage{titlesec}
 \usepackage[hidelinks]{hyperref}
-\titlespacing*{\section}{0pt}{0.6em}{0.2em}
-\titlespacing*{\subsection}{0pt}{0.45em}{0.12em}
-\setlength{\parskip}{0.28em}
-\setlength{\parindent}{0pt}
+\titlespacing*{\section}{0pt}{0.6em}{0.25em}
+\titlespacing*{\subsection}{0pt}{0.5em}{0.15em}
+\setlength{\parskip}{0pt}
+\setlength{\parindent}{1.2em}
 \title{\vspace{-1.0em}\textbf{What a domain prior can and cannot replace}\vspace{-0.4em}}
 \author{\textbf{Cajetan Songwae} \\
   \small{\href{mailto:songwae2000@gmail.com}{songwae2000@gmail.com}} \\
@@ -29,9 +29,9 @@
   \vspace{-2.2em}
   \begin{quote}
   \small
-  Whether hand-written rules can stand in for a client's operational records when generating enterprise data is tested here on 311 tickets from four cities. Blind rules clear a structural null in San Francisco (p 0.0015) and not in Austin (p 0.110), and a conditional fitted on the real data exceeds them in both. Two cheaper references carry most of the signal: category volume alone scores 0.672 against 0.676 for the author-written rules, and a city's published service target recovers 79\% of the achievable margin with no reasoning and no records. An agent benchmark built on generated tickets therefore tests a much weaker problem than it appears to.
+  Whether hand-written rules can stand in for a client's operational records when generating enterprise data is tested here on 311 tickets from four cities. Blind rules clear a structural null in San Francisco (p 0.0015) and not in Austin (p 0.110), and a conditional fitted on the real data exceeds them in both. Two cheaper references carry most of the signal: category volume alone scores 0.672 against 0.676 for the author-written rules, and a city's published service target recovers 79\% of the achievable margin with no records at all. An agent benchmark built on generated tickets therefore tests a much weaker problem than it appears to.
   \end{quote}
-  \vspace{0.6em}
+  \vspace{0.2em}
   \end{@twocolumnfalse}
 ]
 
@@ -150,7 +150,7 @@ rates, and Chicago as the transfer target for those rules.
 
 \section*{Results}
 
-\subsection*{What a blind prior recovers}
+\subsection*{Blind prior recovery}
 
 \begin{table*}[t]
 \centering
@@ -179,7 +179,7 @@ spans [0.442, 0.770], which is not distinguishable from guessing. The 72\% spans
 roughly 7\% to 93\% on that unit, and every claim below should be read at that
 width.
 
-\subsection*{What the rules add over structure alone}
+\subsection*{Gain over structure}
 
 A rule set may score well because it encodes reasoning, or because almost any
 sensible cut of a lopsided taxonomy would; two controls separate the cases.
@@ -222,7 +222,7 @@ almost nothing beyond volume; the model-written rules clear it by 0.105. The
 direction of that baseline is one bit the catalogue did not supply, so the
 comparison is generous to it if anything.
 
-\subsection*{The author effect is not established}
+\subsection*{The author effect}
 
 The model-written rules exceed the author-written rules by 0.116 in Austin and
 0.101 in San Francisco, the same direction at a similar magnitude in both
@@ -231,7 +231,7 @@ cities. By ticket, both differences exclude zero, at [0.104, 0.131] and [0.095,
 cities are not sufficient, and an earlier draft reported these differences with
 no interval at all.
 
-\subsection*{What was predicted, before the data were seen}
+\subsection*{Pre-registered predictions}
 
 \begin{center}
 \footnotesize
@@ -254,7 +254,7 @@ range was already known, a weaker achievement and counted as one. The fourth arm
 produces the headline 72\% and carries no prediction at all. The only prediction
 made in genuine ignorance is the one that failed.
 
-\subsection*{One department explains most of the gap}
+\subsection*{One department}
 
 \begin{table*}[t]
 \centering
@@ -298,7 +298,7 @@ slow. Graffiti Public accounts for 8.2\% of San Francisco volume and is 85.1\%
 slow, yet is priced at 0.37 by the model; the failure ARR shows in Austin is
 therefore present there too, and no subset here removes it.
 
-\subsection*{What the prior does not beat}
+\subsection*{The real-data comparator}
 
 Given the same two columns, a conditional fitted on the real data exceeds the
 blind rules by 0.108 in San Francisco and 0.272 in Austin, so real records win
@@ -323,7 +323,7 @@ categories the author-written rules got wrong, in one city, so it cannot fail
 against the data that produced it. The test that would settle it is set out in
 the closing section.
 
-\subsection*{What the real rates are worth}
+\subsection*{Value of the real rates}
 
 \begin{table*}[t]
 \centering
@@ -361,7 +361,7 @@ not written for. At New York's own threshold they reach 0.581, or 37\%. The
 remaining shortfall is mechanical, since they fire on 17.1\% of Chicago rows,
 being New York acronyms.
 
-\subsection*{Distribution fidelity misses all of this}
+\subsection*{Distribution fidelity}
 
 The first recorded hypothesis, fixed in \texttt{HYPOTHESIS.md} before any run,
 was that generated records matching real data to low-order fidelity would still
@@ -387,57 +387,53 @@ the order those methods fit [13, 14].
 
 \section*{Limits}
 
-The design covers four cities, one domain and one task, of which only two cities
-are blind. New York is a contamination control and Chicago its transfer target,
-so neither replicates anything, and what does replicate is an author effect
-whose category intervals cross zero. A 311 feed offers three usable columns, no
-documents that must agree with each other and no prices, so it is a thin stand-
-in for enterprise data.
+The design covers four cities, one domain and one task, of which only two are
+blind. New York is a contamination control and Chicago its transfer target, so
+neither replicates anything, and what does replicate is an author effect whose
+category intervals cross zero. A 311 feed offers three usable columns, no
+documents that must agree and no prices, so it is a thin stand-in for enterprise
+data.
 
-The second author is a language model, which is the largest weakness in the
-design. These feeds are widely mirrored, so blind here means the session was
-shown no durations, not that the weights hold none. Language models memorise
-popular tabular datasets and score better on ones they have seen [15], the exact
-failure this arm admits, and it produces every headline number. Neither the
-prompt nor the model version was recorded, so the arm cannot be rerun.
+The second author is a language model, which is the largest weakness. These
+feeds are widely mirrored, so blind here means the session was shown no
+durations, not that the weights hold none: language models memorise popular
+tabular datasets and score better on ones they have seen [15], the exact failure
+this arm admits, and it produces every headline number. Neither the prompt nor
+the model version was recorded, so it cannot be rerun.
 
-The San Francisco rules were written in knowledge of what Austin had shown, so
-they are blind to that city's rates but the author is not blind to the lesson.
+The Austin arm also has an ordering problem. The commit that evaluated the
+author-written rules names compost at 96\%, traffic signal maintenance at 8\%
+and vehicle abatement at 94\%, all three called the wrong way. The model wrote
+its Austin rules twelve hours later, using the author's own phrasing as keyword
+strings, and got two of the three right. Compost it still called fast, which
+argues against wholesale transfer, but the prompt was not recorded and this
+cannot be settled. The blind condition covers the catalogue pull, not what had
+already been written down.
 
-The Austin model arm carries an ordering problem. The commit that evaluated the
-author-written rules names three categories with their measured slow rates,
-compost at 96\%, traffic signal maintenance at 8\% and vehicle abatement at
-94\%, and the author-written rules call all three the wrong way. The model wrote
-its Austin rules twelve hours later and got two of the three right, using the
-author's own phrasing as keyword strings. Compost it still called fast, which
-argues against the rates having been handed over wholesale, and both corrections
-are argued for on grounds that do not need them. The prompt was not recorded, so
-this cannot be settled. The blind condition above covers the catalogue pull, not
-what had already been written down by the time that author was asked. The ARR
-result is a subset selected after observing which family the author-written
-rules got wrong, so it fits the numbers and nothing has tested it. New York
-carries known artefacts too, including a department that closes most tickets at
-exactly midnight.
+The San Francisco rules were written in knowledge of what Austin had shown, and
+the ARR result is a subset selected after observing which family the
+author-written rules got wrong, so it fits the numbers and nothing has tested
+it. New York carries known artefacts too, including a department that closes
+most tickets at exactly midnight.
 
-\section*{What it would take to answer the general question}
+\section*{The general question}
 
 The first step is to make the rules generate. The arms reported here score rule
 sets against a conditional fitted on real data, which measures how much of a
-conditional a person can guess, whereas the question asks what generated data
-costs. Sampling rows from the taxonomy and volume counts, labelling them with
-the prior, then training on those and testing on real records would answer it
-directly. The second is to predict the failures in advance: the ARR explanation
-implies that any category whose clock is an administrative cycle will break a
-blind prior, so such categories would be named in a fifth city from the taxonomy
-alone, the list recorded, and the measurement taken after.
+conditional a person can guess, not what generated data costs. Sampling rows
+from the taxonomy and volume counts, labelling them with the prior, then
+training on those and testing on real records would answer it directly. The
+second is to predict the failures in advance: any category whose clock is an
+administrative cycle should break a blind prior, so such categories would be
+named in a fifth city from the taxonomy alone, the list recorded, and the
+measurement taken after.
 
 This bears on the evaluation of agents. Where a taxonomy and a published target
 reach most of the achievable skill, an agent scored on tickets generated from
-that taxonomy is scored on the part of the problem that was easiest to
-reconstruct. The categories where a blind prior fails are the ones a generated
-benchmark will get wrong, and they are invisible in the taxonomy it was built
-from, so a high score there is evidence about the generator rather than the
-agent.
+that taxonomy is scored on the easiest part of the problem to reconstruct. The
+categories where a blind prior fails are invisible in the taxonomy the benchmark
+was built from, so a high score there is evidence about the generator rather
+than the agent.
 
 A prior can be evaluated as a prior only once per dataset, before any outcome
 has been seen, and the prediction must come first. Of the predictions recorded
@@ -445,7 +441,7 @@ here, the only one made in genuine ignorance is the one that proved wrong.
 
 \section*{References}
 
-\footnotesize\setlength{\parskip}{0.12em}
+\footnotesize\setlength{\parindent}{0pt}\setlength{\parskip}{0.05em}
 
 [1] A. F. Karr, C. N. Kohnen, A. Oganian et al. A framework for evaluating the
 utility of data altered to protect confidentiality. \textit{The American

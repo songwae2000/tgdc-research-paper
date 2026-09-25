@@ -1,4 +1,4 @@
-# Note
+# One pager: decisions, results, limits, next step
 
 Paper: `main.pdf`. This repository is the experiment as well, and `python
 run_all.py` prints every figure the paper quotes.

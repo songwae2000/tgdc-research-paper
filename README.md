@@ -80,7 +80,7 @@ single, deliberately non-blind prior, and Chicago has none.
 - `src/stats.py` is bootstrap intervals and the information ceiling.
 - `HYPOTHESIS.md` is the hypothesis as fixed before the first experiment ran,
   including the three ways it could fail. One of them happened.
-- `NOTE.md` is the one-page note on decisions, results and limits.
+- `ONE_PAGER.md` is the one-page note: decisions, results, limits, next step.
 
 ## Checks
 

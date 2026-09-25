@@ -5,10 +5,8 @@ PROCEDURE. Austin's service-type and department vocabulary was pulled with
 no resolution rate, and no per-category outcome of any kind was requested or
 displayed before these rules were written and committed.
 
-This is the control the NYC rules lacked. Those were written after reading
-NYC's conditional rates, scored 0.822 there, and scored 0.435 on Chicago.
-The open question is how much of that 0.822 was knowledge and how much was
-memory. A blind prior, authored and committed before evaluation, measures it.
+This is the control the NYC rules lacked: authored and committed before any
+outcome was observed. Compare src/nyc_prior.py.
 
 THE PRINCIPLES. Four claims about municipal service work, not about Austin:
 

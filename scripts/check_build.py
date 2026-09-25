@@ -1,8 +1,6 @@
 """Fails if the committed PDF is older than the source it claims to be built from.
 
-The paper once shipped seven commits behind its own LaTeX. It was three pages
-where the source was four, it had no reference list, and it asserted a result
-the current draft retracts. Nothing caught it, because the source and the build
+The paper once shipped seven commits behind its own LaTeX. Nothing caught it, because the source and the build
 lived in different repositories and neither knew about the other.
 
 This compares what git has recorded for each file, not what is on disk, since

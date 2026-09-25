@@ -1,4 +1,4 @@
-"""Loading any of the three feeds into the same shape."""
+"""Loading any of the four feeds into the same shape."""
 
 import json
 import os

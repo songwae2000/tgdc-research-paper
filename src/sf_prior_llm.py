@@ -247,3 +247,8 @@ def prior_slow_probability(service_type: str, agency: str) -> float:
     probability += max(-MODIFIER_CAP, min(MODIFIER_CAP, nudge))
 
     return float(max(FLOOR, min(CEILING, probability)))
+
+
+# No PREDICTED_RANGE. No band was recorded before this arm was scored, and
+# writing one now would be fitting to a result already seen. The paper turns on
+# that absence: this arm produces the headline and carries no prediction.

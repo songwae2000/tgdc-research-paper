@@ -8,17 +8,16 @@ measured on the same tickets and are not independent.
 Two resampling units are available and they do not agree. Resampling tickets
 treats every row as an independent observation, which they are not, because the
 rules were written per category and a category's rows share whatever the author
-got right or wrong about it. San Francisco has 37 categories against 17,007 test
-rows, so the difference is not cosmetic: the ticket interval is far too narrow
-for any claim about work a rule set has not seen. Both are reported.
+got right or wrong about it. The difference is not cosmetic: the ticket
+interval is far too narrow for any claim about work a rule set has not seen.
+Both are reported.
 
-The category is not a perfect unit either, and the paper says so. A prior here
-reads the department as well, so its score is constant within a category only
-when that category has one owning department. That holds throughout Austin and
-fails for most of San Francisco, where 22 of 37 categories carry more than one
-value and those categories are 99.6% of the rows. Clustering on category is still
-the better of the two available units, since the dependence it removes is the
-larger one, but it is an approximation rather than the exact design.
+The category is not a perfect unit either. A prior here reads the department as
+well, so its score is constant within a category only when that category has
+one owning department. That holds throughout Austin and fails for most of San
+Francisco. TABLE 4c in run_all.py prints the counts. Clustering on category is
+still the better of the two available units, since the dependence it removes is
+the larger one, but it is an approximation rather than the exact design.
 """
 
 import collections

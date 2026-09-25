@@ -1,6 +1,6 @@
 """The contaminated prior: rules for New York, written after reading its rates.
 
-This is the control condition, and the thing the paper is about. The author
+This is the control condition. The author
 had seen New York's conditional resolution rates by department and complaint
 type before writing these rules, so they cannot be read as domain knowledge.
 Compare src/austin_prior.py, which was written blind and committed before any

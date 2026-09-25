@@ -1,6 +1,6 @@
-"""The three 311 feeds, and what each one calls its fields.
+"""The four 311 feeds, and what each one calls its fields.
 
-All three publish the same underlying object, a service request with an
+All four publish the same underlying object, a service request with an
 opening time, a category, an owning department, an intake channel and a
 closing time. Only the column names differ.
 """

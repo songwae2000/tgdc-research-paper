@@ -1,12 +1,11 @@
 # What a domain prior can and cannot replace
 
-Can hand-written domain rules replace a client's operational records when
-generating enterprise data? This tests it on 311 service tickets from four
-cities, and the answer turns out to depend on the client.
+Hand-written domain rules replace a client's operational records for some
+clients and not others. This tests it on 311 service tickets from four cities.
 
 Written for the TGDC case study, research track. The paper is `main.pdf`, four
-pages. Everything it reports is printed by `python run_all.py` in this
-repository.
+pages. Everything it reports is printed, in order, by `python run_all.py` in
+this repository.
 
 ## Run it
 
@@ -16,8 +15,6 @@ repository.
 Four public 311 feeds, no key, no account, no cost. numpy and scikit-learn are
 the only dependencies. The first run downloads about 60MB. Later runs read from
 disk and take under two minutes, most of it bootstrap resampling.
-
-It prints every table the paper quotes, in order.
 
 ## The result
 
@@ -39,8 +36,8 @@ work whose clock is an administrative cycle. Which of those a client has is not
 visible in their taxonomy.
 
 Two controls decide how much of that is reasoning. Shuffling the same rules'
-verdicts across categories, which holds the taxonomy and the row counts and
-destroys only the reasoning, scores 0.501: the reasoning is doing the work.
+verdicts across categories scores 0.501. That holds the taxonomy and the row
+counts and destroys only the reasoning, so the reasoning is doing the work.
 Scoring by category row count alone reaches 0.672 in San Francisco against the
 experimenter's 0.676, so that arm adds almost nothing beyond volume.
 
@@ -61,8 +58,8 @@ were written, committed with a recorded prediction, and only then evaluated.
 
 Austin and San Francisco each have two authors under that condition, because the
 first draft of this work had one and the result turned out to be partly about
-him. The second author is a language model, which is disclosed in the paper and
-is the design's largest uncontrolled channel: these feeds are widely mirrored,
+him. The second author is a language model, and that is the design's largest
+uncontrolled channel: these feeds are widely mirrored,
 so blind means it was shown no durations, not that it holds none. New York has a
 single, deliberately non-blind prior, and Chicago has none.
 
@@ -93,8 +90,7 @@ reached a draft without being computed.
 
 `check_build.py` fails if the committed PDF is older than the LaTeX, or the
 LaTeX older than the markdown. It exists because the paper once shipped seven
-commits behind its own source, back when the text and the experiment lived in
-separate repositories. They no longer do.
+commits behind its own source.
 
 `data/MANIFEST.json` records the row count and hash of each file the paper was
 computed from. The feeds are live, so `run_all.py` reports any disagreement

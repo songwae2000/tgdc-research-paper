@@ -6,12 +6,10 @@ how long it intends to take, and you rank categories by that. If the target
 predicts duration as well as reasoning does, then the useful prior for a new
 client is a document they already have, not an exercise someone has to perform.
 
-This also bears on contamination. A language model asked to reason about
-municipal work may be recalling published performance material rather than
-reasoning, and this measures how much such a document is worth on its own.
-New York publishes these targets. I could not find an equivalent open dataset
-for Austin or San Francisco, which are the two cities carrying the blind result,
-so this narrows that worry without settling it.
+This also bears on contamination: a model asked to reason about municipal work
+may be recalling published performance material. I could not find an equivalent
+open dataset for Austin or San Francisco, the two cities carrying the blind
+result, so this narrows that worry without settling it.
 
 Source: NYC Open Data, 311 Service Level Agreements, dataset cs9t-e3x8.
 """

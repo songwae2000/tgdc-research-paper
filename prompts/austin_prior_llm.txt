@@ -1,0 +1,78 @@
+The prompt given to Claude Opus 5 on 23 September 2026, verbatim and entire.
+
+It ran as an isolated agent with no sight of this project, this paper, the
+other rule sets, or any result. Everything it received is below. The catalogue
+was pulled with the query restricted to category names and row counts, so no
+duration, rate or outcome appears anywhere in it.
+
+The output is src/austin_prior_llm.py.
+
+----------------------------------------------------------------------------
+
+You are acting as a domain expert building a simulation of a city's 311 service
+request system.
+
+TASK: estimate, for each type of service request, the probability that it takes
+LONGER THAN THE MEDIAN time to resolve. You have the city's service catalogue
+below. You do NOT have any historical timing data, and none is available to you.
+Work from your understanding of how municipal service work actually operates.
+
+This is Austin, Texas. Below is the catalogue of service request types with how
+many requests of each type exist, and the departments that own them. These
+counts are volumes only and say nothing about duration.
+
+DEPARTMENTS (by volume):
+Austin Resource Recovery, Transportation, Animal Services Office, Austin Code
+Department, Public Works, Austin Police Department, Austin Transportation and
+Public Works, Parks & Recreation Department, Austin Energy Department,
+Development Services Department, Watershed Protection, Public Health,
+311-Command Center, Economic Development Department, Austin Water, Code
+Compliance, Health & Human Services
+
+TOP SERVICE TYPES (by volume):
+Austin Code - Request Code Officer; Traffic Signal - Maintenance; ARR - Garbage;
+Loose Dog; APD - Non Emergency Noise/Alarm; DSD - Request Code Officer; ARR -
+Compost; ARR Missed Recycling; Animal Control - Assistance Request; Park
+Maintenance - Grounds; ARR - Recycling; ARR - Storm Debris Collection; ARR Dead
+Animal Collection; Injured / Sick Animal; Street Light Issue- Address; APD -
+Vehicle Abatement Report; ATD - Parking Violation Enforcement; TPW - Parking
+Violation Enforcement; ARR Missed Yard Trimmings/Compost; APD - Non Emergency
+Collision; 311 CC - Other; Animal Protection - Loose Dog; Pothole Repair; ARR -
+Bulk; ARR - Dead Animal Collection; ATD - Shared Micromobility; Animal
+Protection - Injured/Sick Animal; TPW - Traffic Signal - Maintenance; AE Street
+Light Issue - Address; Tree Issue ROW; Debris in Street; Loud Commercial Music;
+DSD - Follow-Up; Code Compliance; ARR - General; Animal - Proper Care; ARR Brush
+and Bulk; Water Waste Report; Public Health - Graffiti Abatement; Sign - Traffic
+Sign Maintenance; Traffic Signal - Dig Tess Request; ACD - Request Code Officer;
+Parking Violation Enforcement; Graffiti Abatement; Austin Code - Short Term
+Rental Complaint SR; Pet Resource Center - Assistance Request; Animal Bite;
+Animal Services - Contact Request; Animal Protection - Assistance Request;
+Obstruction in ROW; Wildlife Exposure; Parking Machine Issue; Found Animal -
+Pick Up; AW - Water Conservation Violation; Sidewalk Repair; Sign - New;
+Lane/Road Closure Notification; Found Animal Report - Keep; ARR - Brush
+
+WHAT TO PRODUCE: write a single Python file containing a function with exactly
+this signature:
+
+    def prior_slow_probability(service_type: str, department: str) -> float:
+        """Probability this request runs slower than the median."""
+
+It must return a float between 0 and 1 for ANY input string, including types not
+listed above, so use substring matching on keywords rather than exact lookups.
+Aim to cover as much of the catalogue as you can rather than returning 0.5
+everywhere.
+
+Above the function, write a docstring explaining the reasoning you used: what
+makes municipal work slow or fast, and which keyword groups you derived from
+that reasoning.
+
+Write the file to:
+/Users/cajetan/Desktop/TGDC/real-vs-generated/src/austin_prior_llm.py
+
+Then reply with a short summary (under 150 words) of the reasoning you used and
+roughly what fraction of the listed catalogue your keywords cover.
+
+Do not search the web for Austin 311 resolution times or performance data. This
+is a test of reasoning from domain understanding, and looking up the answer
+would defeat the purpose. Work only from the catalogue above and general
+knowledge of how city services operate.

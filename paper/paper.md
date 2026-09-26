@@ -114,8 +114,8 @@ boundaries rather than substrings, before that city's data existed on disk.
 
 The principal risk is that the result describes one author's reasoning, so
 Austin and San Francisco each carry two rule sets under the same blind
-condition, one by the author and one by a language model from the same
-catalogue. New York serves as the contrast, written under sight of the real
+condition, one by the author and one by Claude Opus 5 from the same
+catalogue, prompted with the taxonomy alone and reproduced in the source. New York serves as the contrast, written under sight of the real
 rates, and Chicago as the transfer target for those rules.
 
 ## Results
@@ -330,7 +330,8 @@ anything, and what does replicate is an author effect whose category intervals
 cross zero. A 311 feed offers three usable columns, no documents that must agree
 and no prices, so it is a thin stand-in for enterprise data.
 
-The second author is a language model, which is the largest weakness. These
+The second author is Claude Opus 5, prompted with the taxonomy alone and
+reproduced verbatim in the repository, and this is the largest weakness. These
 feeds are widely mirrored, so blind here means the session was shown no
 durations, not that the weights hold none: language models memorise popular
 tabular datasets and score better on ones they have seen [15], the exact failure

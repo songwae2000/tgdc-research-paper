@@ -252,3 +252,22 @@ def prior_slow_probability(service_type: str, agency: str) -> float:
 # No PREDICTED_RANGE. No band was recorded before this arm was scored, and
 # writing one now would be fitting to a result already seen. The paper turns on
 # that absence: this arm produces the headline and carries no prediction.
+
+
+# ---------------------------------------------------------------------------
+# AUTHOR PROVENANCE
+#
+# Written by Claude Opus 5 (Anthropic), run as an isolated agent with no sight
+# of this project, this paper, the other rule sets, or any result, on
+# 23 September 2026.
+#
+# The prompt it received is reproduced verbatim and entire in
+# prompts/sf_prior_llm.txt. It is kept because the prompt, not the model, is
+# what enforced blindness: the catalogue in it was pulled with the query
+# restricted to category names and row counts, so no duration, rate or outcome
+# appears anywhere in what the author saw.
+#
+# The caveat that matters: 311 feeds are widely mirrored, so blind here means
+# the author was shown no durations, not that its weights hold none. A human
+# author can be asked what they already knew. This one cannot.
+# ---------------------------------------------------------------------------

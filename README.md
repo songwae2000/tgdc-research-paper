@@ -3,10 +3,6 @@
 Hand-written domain rules replace a client's operational records for some
 clients and not others. This tests it on 311 service tickets from four cities.
 
-Written for the TGDC case study, research track. The paper is `main.pdf`, four
-pages. Everything it reports is printed, in order, by `python run_all.py` in
-this repository.
-
 ## Run it
 
     pip install -r requirements.txt

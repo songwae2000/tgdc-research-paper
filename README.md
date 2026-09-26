@@ -59,11 +59,11 @@ were written, committed with a recorded prediction, and only then evaluated.
 Austin and San Francisco each have two authors under that condition, because the
 first draft of this work had one and the result turned out to be partly about
 him. The second author is Claude Opus 5, prompted with the taxonomy alone and
-given the same instruction not to look anything up. Both prompts are reproduced
-verbatim in `prompts/`. That is the design's largest
-uncontrolled channel: these feeds are widely mirrored,
-so blind means it was shown no durations, not that it holds none. New York has a
-single, deliberately non-blind prior, and Chicago has none.
+told not to look anything up. Both prompts are reproduced verbatim in
+`prompts/`. That arm is the design's largest uncontrolled channel: these feeds
+are widely mirrored, so blind means it was shown no durations, not that it
+holds none. New York has a single, deliberately non-blind prior, and Chicago
+has none.
 
 ## Layout
 

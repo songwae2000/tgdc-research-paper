@@ -11,10 +11,10 @@
 | Mine | -1% | 46% |
 | The Model | 29% | 72% |
 
-* **Blind Rule Performance:** Performance varied sharply by city. By ticket AUC, the model-written rules recovered **72%** of the taxonomy ceiling in San Francisco, but human-written rules in Austin dropped to **0.494** (-1% recovered).
-* **Permutation Null Tests:** Shuffling verdicts across categories to test the null hypothesis yielded a significant **$p = 0.0015$** in San Francisco (confirming real reasoning), but failed in Austin (**$p = 0.110$**, indistinguishable from a random cut of the taxonomy).
+* **Blind Rule Performance:** Performance varied sharply by city. By ticket AUC, the model-written rules recovered 72% of the taxonomy ceiling in San Francisco, but human-written rules in Austin dropped to **0.494** (-1% recovered).
+* **Permutation Null Tests:** Shuffling verdicts across categories to test the null hypothesis yielded a significant $p = 0.0015$ in San Francisco (confirming real reasoning), but failed in Austin (**$p = 0.110$**, indistinguishable from a random cut of the taxonomy).
 * **Real Records Win:** Fitted conditionals on real data outperformed the rules in both cities (by 0.108 in San Francisco and 0.272 in Austin).
-* **The Published Target Baseline:** In New York, ranking tickets solely by the city's **published service target** (official target days per complaint type) reached **79% of the achievable margin** (0.830 AUC) instantly, matching rules written with real outcomes in hand, requiring zero reasoning or records.
+* **The Published Target Baseline:** In New York, ranking tickets solely by the city's published service target (official target days per complaint type) reached 79% of the achievable margin (0.830 AUC) instantly, matching rules written with real outcomes in hand, requiring zero reasoning or records.
 
 ## Limits
 
@@ -25,4 +25,4 @@
 ## Next step
 
 * **Make the Rules Generate:** Close the loop by sampling rows from the taxonomy and volume counts, labelling them with the prior, training a model on that synthetic dataset, and testing on real records to directly measure the cost of generated data.
-* **Isolate Structure from Recall:** Prompts and versions are now logged. Re-score using opaque category IDs to cleanly separate structural reasoning from label memorization.
+* **Isolate Structure from Recall:** Prompts and versions are logged. Re-score using opaque category IDs to cleanly separate structural reasoning from label memorization.

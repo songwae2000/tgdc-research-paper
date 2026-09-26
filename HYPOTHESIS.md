@@ -29,9 +29,6 @@ Three ways, any of which kills it:
 3. The loss might track something else entirely, such as how well the label
    conditional was preserved, with the impossible rate along for the ride.
 
-Outcome 2 is the one worth watching. It would mean the thing real data
-uniquely supplies here is not constraint structure, and that a generator is
-free to emit nonsense records as long as its conditionals hold up.
 
 ## What this deliberately does not claim
 
